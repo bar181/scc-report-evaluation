@@ -112,6 +112,7 @@ const ReportsTable = ({ reports, onEdit, onDelete, hourlyRate, onEffortUpdate }:
                     <TableCell colSpan={7}>
                       <EffortForm
                         effort={report.effort}
+                        hourlyRate={hourlyRate}
                         onSave={(effort) => handleEffortSave(report.id, effort)}
                         onCancel={() => setEditingEffortId(null)}
                       />
