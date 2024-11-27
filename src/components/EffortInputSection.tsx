@@ -6,7 +6,7 @@ interface EffortInputSectionProps {
   months: number;
   people: number;
   cost: number;
-  onChange: (field: 'months' | 'people', value: string) => void;
+  onChange: (field: 'months' | 'people' | 'cost', value: string) => void;
 }
 
 const EffortInputSection = ({ title, months, people, cost, onChange }: EffortInputSectionProps) => {
@@ -35,10 +35,10 @@ const EffortInputSection = ({ title, months, people, cost, onChange }: EffortInp
         <div className="flex-1">
           <label className="block text-xs text-muted-foreground mb-1">Cost (USD)</label>
           <Input
-            type="text"
-            value={`$${Math.round(cost).toLocaleString()}`}
-            readOnly
-            className="bg-gray-50"
+            type="number"
+            value={Math.round(cost)}
+            onChange={(e) => onChange('cost', e.target.value)}
+            className="bg-white"
           />
         </div>
       </div>

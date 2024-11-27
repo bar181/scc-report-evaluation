@@ -48,6 +48,8 @@ const ReportModal = ({
   const [reportName, setReportName] = useState(initialName || "Repo 1");
   const [currentEffort, setCurrentEffort] = useState<EffortMetrics>(initialEffort || DEFAULT_EFFORT);
   const [pasteContent, setPasteContent] = useState("");
+  const [estimatedCost, setEstimatedCost] = useState(0);
+  const [actualCost, setActualCost] = useState(0);
 
   useEffect(() => {
     if (initialReport) {
@@ -61,13 +63,23 @@ const ReportModal = ({
     }
   }, [initialReport, initialEffort, initialName]);
 
-  const calculateCost = (months: number, people: number) => {
-    const hourlyRate = 100;
-    return Math.round(months * people * hourlyRate * 160);
-  };
+  useEffect(() => {
+    const calculateDefaultCost = (months: number, people: number) => {
+      const hourlyRate = 100;
+      return Math.round(months * people * hourlyRate * 160);
+    };
+
+    setEstimatedCost(calculateDefaultCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople));
+    setActualCost(calculateDefaultCost(currentEffort.actualMonths, currentEffort.actualPeople));
+  }, [currentEffort]);
 
   const handleSave = () => {
-    onSave(reportName, currentReport, currentEffort);
+    const updatedEffort = {
+      ...currentEffort,
+      estimatedCost,
+      actualCost
+    };
+    onSave(reportName, currentReport, updatedEffort);
     onOpenChange(false);
     resetForm();
   };
@@ -77,6 +89,8 @@ const ReportModal = ({
     setReportName("Repo 1");
     setPasteContent("");
     setCurrentEffort(DEFAULT_EFFORT);
+    setEstimatedCost(0);
+    setActualCost(0);
   };
 
   const handlePasteData = (data: string) => {
@@ -94,7 +108,6 @@ const ReportModal = ({
 
       setCurrentReport({ languages, total });
 
-      // Update effort if estimates are available
       if (estimates.estimatedMonths || estimates.estimatedPeople) {
         setCurrentEffort(prev => ({
           ...prev,
@@ -114,11 +127,19 @@ const ReportModal = ({
     }));
   };
 
-  const handleEffortChange = (type: 'estimated' | 'actual', field: 'months' | 'people', value: string) => {
-    setCurrentEffort(prev => ({
-      ...prev,
-      [`${type}${field.charAt(0).toUpperCase() + field.slice(1)}`]: parseFloat(value) || 0
-    }));
+  const handleEffortChange = (type: 'estimated' | 'actual', field: 'months' | 'people' | 'cost', value: string) => {
+    if (field === 'cost') {
+      if (type === 'estimated') {
+        setEstimatedCost(Number(value) || 0);
+      } else {
+        setActualCost(Number(value) || 0);
+      }
+    } else {
+      setCurrentEffort(prev => ({
+        ...prev,
+        [`${type}${field.charAt(0).toUpperCase() + field.slice(1)}`]: parseFloat(value) || 0
+      }));
+    }
   };
 
   return (
@@ -153,7 +174,7 @@ const ReportModal = ({
               title="Estimated Effort"
               months={currentEffort.estimatedMonths}
               people={currentEffort.estimatedPeople}
-              cost={calculateCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople)}
+              cost={estimatedCost}
               onChange={(field, value) => handleEffortChange('estimated', field, value)}
             />
 
@@ -161,7 +182,7 @@ const ReportModal = ({
               title="Actual Effort"
               months={currentEffort.actualMonths}
               people={currentEffort.actualPeople}
-              cost={calculateCost(currentEffort.actualMonths, currentEffort.actualPeople)}
+              cost={actualCost}
               onChange={(field, value) => handleEffortChange('actual', field, value)}
             />
           </div>
