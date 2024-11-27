@@ -10,8 +10,8 @@ import ComplexityChart from "@/components/ComplexityChart";
 import LanguageTable from "@/components/LanguageTable";
 import ReportsTable from "@/components/ReportsTable";
 import PerformanceMetrics from "@/components/PerformanceMetrics";
-import EffortForm from "@/components/EffortForm";
-import type { SCCReport, ReportEntry } from "@/types/scc";
+import InitialEffortForm from "@/components/InitialEffortForm";
+import type { SCCReport, ReportEntry, EffortMetrics } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
 const Index = () => {
@@ -19,6 +19,12 @@ const Index = () => {
   const [reports, setReports] = useState<ReportEntry[]>([]);
   const [reportName, setReportName] = useState("");
   const [hourlyRate, setHourlyRate] = useState(70);
+  const [currentEffort, setCurrentEffort] = useState<EffortMetrics>({
+    estimatedMonths: 3,
+    estimatedPeople: 2,
+    actualMonths: 4,
+    actualPeople: 1.5
+  });
   const { toast } = useToast();
 
   const handleSaveReport = () => {
@@ -29,17 +35,18 @@ const Index = () => {
       ...currentReport,
       id: Date.now(),
       name,
-      effort: {
-        estimatedMonths: 3,
-        estimatedPeople: 2,
-        actualMonths: 4,
-        actualPeople: 1.5
-      }
+      effort: currentEffort
     };
 
     setReports((prev) => [...prev, newReport]);
     setCurrentReport(null);
     setReportName("");
+    setCurrentEffort({
+      estimatedMonths: 3,
+      estimatedPeople: 2,
+      actualMonths: 4,
+      actualPeople: 1.5
+    });
 
     toast({
       title: "Report saved",
@@ -219,6 +226,11 @@ const Index = () => {
               </div>
               <Button onClick={handleSaveReport}>Save Report</Button>
             </div>
+
+            <InitialEffortForm
+              hourlyRate={hourlyRate}
+              onChange={setCurrentEffort}
+            />
 
             <SummaryStats
               stats={currentReport.total}

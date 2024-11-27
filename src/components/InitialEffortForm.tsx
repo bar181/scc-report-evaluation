@@ -1,46 +1,44 @@
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import type { EffortMetrics } from "@/types/scc";
 
-interface EffortFormProps {
-  effort: EffortMetrics;
+interface InitialEffortFormProps {
   hourlyRate: number;
-  onSave: (effort: EffortMetrics) => void;
-  onCancel: () => void;
+  onChange: (effort: EffortMetrics) => void;
 }
 
-const EffortForm = ({ effort, hourlyRate, onSave, onCancel }: EffortFormProps) => {
-  const [formData, setFormData] = useState(effort);
-  const [estimatedCost, setEstimatedCost] = useState(0);
-  const [actualCost, setActualCost] = useState(0);
-
-  useEffect(() => {
-    const calculateCost = (months: number, people: number) => {
-      return months * people * hourlyRate * 160;
-    };
-
-    setEstimatedCost(calculateCost(formData.estimatedMonths, formData.estimatedPeople));
-    setActualCost(calculateCost(formData.actualMonths, formData.actualPeople));
-  }, [formData, hourlyRate]);
+const InitialEffortForm = ({ hourlyRate, onChange }: InitialEffortFormProps) => {
+  const [effort, setEffort] = useState<EffortMetrics>({
+    estimatedMonths: 3,
+    estimatedPeople: 2,
+    actualMonths: 4,
+    actualPeople: 1.5
+  });
 
   const handleChange = (field: keyof EffortMetrics, value: string) => {
-    setFormData(prev => ({
-      ...prev,
+    const newEffort = {
+      ...effort,
       [field]: parseFloat(value) || 0
-    }));
+    };
+    setEffort(newEffort);
+    onChange(newEffort);
+  };
+
+  const calculateCost = (months: number, people: number) => {
+    return months * people * hourlyRate * 160;
   };
 
   return (
-    <Card className="p-4 space-y-4">
+    <Card className="p-4 space-y-4 mb-4">
+      <h3 className="text-lg font-semibold">Initial Effort Estimation</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">Est. Months</label>
           <Input
             type="number"
             step="0.1"
-            value={formData.estimatedMonths}
+            value={effort.estimatedMonths}
             onChange={(e) => handleChange('estimatedMonths', e.target.value)}
           />
         </div>
@@ -49,7 +47,7 @@ const EffortForm = ({ effort, hourlyRate, onSave, onCancel }: EffortFormProps) =
           <Input
             type="number"
             step="0.1"
-            value={formData.estimatedPeople}
+            value={effort.estimatedPeople}
             onChange={(e) => handleChange('estimatedPeople', e.target.value)}
           />
         </div>
@@ -57,7 +55,7 @@ const EffortForm = ({ effort, hourlyRate, onSave, onCancel }: EffortFormProps) =
           <label className="block text-sm font-medium mb-1">Est. Cost ($)</label>
           <Input
             type="text"
-            value={estimatedCost.toLocaleString()}
+            value={calculateCost(effort.estimatedMonths, effort.estimatedPeople).toLocaleString()}
             readOnly
             className="bg-gray-50"
           />
@@ -67,7 +65,7 @@ const EffortForm = ({ effort, hourlyRate, onSave, onCancel }: EffortFormProps) =
           <Input
             type="number"
             step="0.1"
-            value={formData.actualMonths}
+            value={effort.actualMonths}
             onChange={(e) => handleChange('actualMonths', e.target.value)}
           />
         </div>
@@ -76,7 +74,7 @@ const EffortForm = ({ effort, hourlyRate, onSave, onCancel }: EffortFormProps) =
           <Input
             type="number"
             step="0.1"
-            value={formData.actualPeople}
+            value={effort.actualPeople}
             onChange={(e) => handleChange('actualPeople', e.target.value)}
           />
         </div>
@@ -84,18 +82,14 @@ const EffortForm = ({ effort, hourlyRate, onSave, onCancel }: EffortFormProps) =
           <label className="block text-sm font-medium mb-1">Act. Cost ($)</label>
           <Input
             type="text"
-            value={actualCost.toLocaleString()}
+            value={calculateCost(effort.actualMonths, effort.actualPeople).toLocaleString()}
             readOnly
             className="bg-gray-50"
           />
         </div>
       </div>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
-        <Button onClick={() => onSave(formData)}>Save</Button>
-      </div>
     </Card>
   );
 };
 
-export default EffortForm;
+export default InitialEffortForm;
