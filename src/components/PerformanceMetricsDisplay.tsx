@@ -4,7 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import type { ReportEntry } from "@/types/scc";
 import { useCostVisibility } from "@/contexts/CostVisibilityContext";
 import LanguageChart from "./LanguageChart";
-import ComplexityChart from "./ComplexityChart";
+import EstimatedCostChart from "./EstimatedCostChart";
 
 interface PerformanceMetricsDisplayProps {
   reports: ReportEntry[];
@@ -145,15 +145,6 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
         </Card>
       </div>
 
-      <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-        <h3 className="text-2xl font-medium text-gray-900 mb-4">
-          There {reports.length === 1 ? 'was' : 'were'} {reports.length} project{reports.length === 1 ? '' : 's'} completed 
-          over a period of {metrics.totalMonths.toFixed(1)} months. 
-          {metrics.totalLines.toLocaleString()} lines of code were created in {metrics.totalFiles.toLocaleString()} files. 
-          The estimated value is ${metrics.estimatedCost.toLocaleString()}.
-        </h3>
-      </div>
-
       {reports.length > 0 && reports[0]?.languages && reports[0].languages.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -162,8 +153,8 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-xl font-bold mb-6">Code Complexity by Language</h3>
-            <ComplexityChart languages={reports[0].languages} />
+            <h3 className="text-xl font-bold mb-6">Estimated Cost by Repository</h3>
+            <EstimatedCostChart reports={reports} />
           </div>
         </div>
       )}
