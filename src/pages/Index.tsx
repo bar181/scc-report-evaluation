@@ -46,7 +46,7 @@ const Index = () => {
             )}
           </div>
           <p className="text-lg text-gray-600 mb-4">
-            Created by{" "}
+            This SCC Performance Analyzer was created by{" "}
             <a
               href="https://www.linkedin.com/in/bradaross/"
               target="_blank"

@@ -13,11 +13,13 @@ const EstimatedCostChart = ({ reports }: EstimatedCostChartProps) => {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data}>
+      <BarChart data={data} margin={{ left: 15 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
         <YAxis 
           tickFormatter={(value) => `$${(value).toLocaleString()}`}
+          style={{ fontSize: '11px' }}
+          width={80}
         />
         <Tooltip 
           formatter={(value: number) => [`$${value.toLocaleString()}`, 'Estimated Cost']}
