@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import CodeStatisticsCard from "./CodeStatisticsCard";
-import EffortInputsCard from "./EffortInputsCard";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
@@ -33,6 +32,11 @@ const ReportModal = ({
     actualPeople: 1.5
   });
   const [pasteContent, setPasteContent] = useState("");
+
+  const calculateCost = (months: number, people: number) => {
+    const hourlyRate = 100; // Default hourly rate
+    return months * people * hourlyRate * 160; // 160 hours per month
+  };
 
   const handleSave = () => {
     if (currentReport) {
@@ -85,17 +89,22 @@ const ReportModal = ({
     }
   };
 
+  const handleEffortChange = (field: keyof EffortMetrics, value: string) => {
+    setCurrentEffort(prev => ({
+      ...prev,
+      [field]: parseFloat(value) || 0
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{initialReport ? 'Edit Report' : 'Add New Report'}</DialogTitle>
+          <DialogTitle>Add New Report</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Repository Name
-            </label>
+            <label className="block text-sm font-medium mb-1">Repository Name</label>
             <Input
               value={reportName}
               onChange={(e) => setReportName(e.target.value)}
@@ -119,10 +128,72 @@ const ReportModal = ({
                 stats={currentReport.total}
                 onChange={handleStatsChange}
               />
-              <EffortInputsCard
-                effort={currentEffort}
-                onChange={setCurrentEffort}
-              />
+              
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Estimated Effort</h3>
+                  <div className="flex gap-4 items-center">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={currentEffort.estimatedMonths}
+                        onChange={(e) => handleEffortChange('estimatedMonths', e.target.value)}
+                        placeholder="Months"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={currentEffort.estimatedPeople}
+                        onChange={(e) => handleEffortChange('estimatedPeople', e.target.value)}
+                        placeholder="People"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        value={`$${calculateCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople).toLocaleString()}`}
+                        readOnly
+                        className="bg-gray-50"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Actual Effort</h3>
+                  <div className="flex gap-4 items-center">
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={currentEffort.actualMonths}
+                        onChange={(e) => handleEffortChange('actualMonths', e.target.value)}
+                        placeholder="Months"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="number"
+                        step="0.1"
+                        value={currentEffort.actualPeople}
+                        onChange={(e) => handleEffortChange('actualPeople', e.target.value)}
+                        placeholder="People"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        value={`$${calculateCost(currentEffort.actualMonths, currentEffort.actualPeople).toLocaleString()}`}
+                        readOnly
+                        className="bg-gray-50"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </>
           )}
 
