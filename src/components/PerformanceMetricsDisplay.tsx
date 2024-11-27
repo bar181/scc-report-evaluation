@@ -21,7 +21,8 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
       actualCost: 0,
       totalMonths: 0,
       totalLines: 0,
-      totalFiles: 0
+      totalFiles: 0,
+      estimatedPerformance: 0
     };
 
     let totalEstimatedEffort = 0;
@@ -31,6 +32,7 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
     let totalMonths = 0;
     let totalLines = 0;
     let totalFiles = 0;
+    let estimatedPerformance = 0;
 
     reports.forEach(report => {
       const estimatedEffort = report.effort.estimatedMonths * report.effort.estimatedPeople;
@@ -39,6 +41,7 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
       totalEstimatedEffort += estimatedEffort;
       totalActualEffort += actualEffort;
       totalMonths += report.effort.actualMonths;
+      estimatedPerformance += report.effort.estimatedMonths * report.effort.estimatedPeople;
       
       totalEstimatedCost += estimatedEffort * hourlyRate * 160;
       totalActualCost += actualEffort * hourlyRate * 160;
@@ -61,7 +64,8 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
       actualCost: totalActualCost,
       totalMonths,
       totalLines,
-      totalFiles
+      totalFiles,
+      estimatedPerformance
     };
   };
 
@@ -126,15 +130,15 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
 
         <Card className="p-4">
           <h4 className="text-sm font-medium text-muted-foreground mb-2">
-            Total Cost
+            {showActualCosts ? "Total Cost" : "Estimated Performance"}
           </h4>
           <p className="text-2xl font-bold text-primary">
-            ${showActualCosts 
-              ? metrics.actualCost.toLocaleString()
-              : metrics.estimatedCost.toLocaleString()}
+            {showActualCosts 
+              ? `$${metrics.actualCost.toLocaleString()}`
+              : `${metrics.estimatedPerformance.toFixed(1)}`}
           </p>
           <p className="text-sm text-muted-foreground">
-            {showActualCosts ? "Actual Spend" : "Estimated Spend"}
+            {showActualCosts ? "Actual Spend" : "Est. Person-Months"}
           </p>
         </Card>
       </div>

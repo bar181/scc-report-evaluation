@@ -67,7 +67,12 @@ const ReportsTable = ({
           return (
             <Card key={report.id} className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold">{report.name}</h3>
+                <div>
+                  <h3 className="text-lg font-semibold">{report.name}</h3>
+                  <p className="text-sm text-gray-600">
+                    Est. Time: {report.effort.estimatedMonths.toFixed(1)} months
+                  </p>
+                </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
