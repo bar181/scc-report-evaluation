@@ -2,23 +2,26 @@ import { Card } from "@/components/ui/card";
 
 interface SummaryStatsProps {
   stats: {
-    lines: number;
-    code: number;
-    comments: number;
-    blanks: number;
-    complexity: number;
-    files: number;
+    lines?: number;
+    code?: number;
+    comments?: number;
+    blanks?: number;
+    complexity?: number;
+    files?: number;
   };
 }
 
 const SummaryStats = ({ stats }: SummaryStatsProps) => {
+  // Ensure stats object exists, if not use empty object
+  const safeStats = stats || {};
+
   const metrics = [
-    { label: "Total Files", value: stats.files },
-    { label: "Lines of Code", value: stats.code },
-    { label: "Comments", value: stats.comments },
-    { label: "Blank Lines", value: stats.blanks },
-    { label: "Total Lines", value: stats.lines },
-    { label: "Complexity", value: stats.complexity },
+    { label: "Total Files", value: safeStats.files ?? 0 },
+    { label: "Lines of Code", value: safeStats.code ?? 0 },
+    { label: "Comments", value: safeStats.comments ?? 0 },
+    { label: "Blank Lines", value: safeStats.blanks ?? 0 },
+    { label: "Total Lines", value: safeStats.lines ?? 0 },
+    { label: "Complexity", value: safeStats.complexity ?? 0 },
   ];
 
   return (
