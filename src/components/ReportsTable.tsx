@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import type { ReportEntry } from "@/types/scc";
-import { useState } from "react";
 import EffortForm from "./EffortForm";
 
 interface ReportsTableProps {
