@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import CodeStatisticsCard from "./CodeStatisticsCard";
+import SCCPasteInput from "./SCCPasteInput";
+import EffortInputSection from "./EffortInputSection";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
@@ -15,43 +17,66 @@ interface ReportModalProps {
   initialEffort?: EffortMetrics;
 }
 
+const DEFAULT_STATS = {
+  files: 0,
+  lines: 0,
+  code: 0,
+  comments: 0,
+  blanks: 0,
+  complexity: 0
+};
+
+const DEFAULT_EFFORT: EffortMetrics = {
+  estimatedMonths: 3,
+  estimatedPeople: 2,
+  actualMonths: 4,
+  actualPeople: 1.5
+};
+
 const ReportModal = ({ 
   open, 
   onOpenChange, 
   onSave,
   initialReport,
-  initialName = "",
+  initialName,
   initialEffort
 }: ReportModalProps) => {
-  const [currentReport, setCurrentReport] = useState<SCCReport | null>(initialReport || null);
-  const [reportName, setReportName] = useState(initialName);
-  const [currentEffort, setCurrentEffort] = useState<EffortMetrics>(initialEffort || {
-    estimatedMonths: 3,
-    estimatedPeople: 2,
-    actualMonths: 4,
-    actualPeople: 1.5
+  const [currentReport, setCurrentReport] = useState<SCCReport>({ 
+    languages: [], 
+    total: DEFAULT_STATS 
   });
+  const [reportName, setReportName] = useState(initialName || "Repo 1");
+  const [currentEffort, setCurrentEffort] = useState<EffortMetrics>(initialEffort || DEFAULT_EFFORT);
   const [pasteContent, setPasteContent] = useState("");
 
+  useEffect(() => {
+    if (initialReport) {
+      setCurrentReport(initialReport);
+    }
+    if (initialEffort) {
+      setCurrentEffort(initialEffort);
+    }
+    if (initialName) {
+      setReportName(initialName);
+    }
+  }, [initialReport, initialEffort, initialName]);
+
   const calculateCost = (months: number, people: number) => {
-    const hourlyRate = 100; // Default hourly rate
-    return Math.round(months * people * hourlyRate * 160); // 160 hours per month
+    const hourlyRate = 100;
+    return Math.round(months * people * hourlyRate * 160);
   };
 
   const handleSave = () => {
-    if (currentReport) {
-      onSave(reportName, currentReport, currentEffort);
-      onOpenChange(false);
-      setCurrentReport(null);
-      setReportName("");
-      setPasteContent("");
-      setCurrentEffort({
-        estimatedMonths: 3,
-        estimatedPeople: 2,
-        actualMonths: 4,
-        actualPeople: 1.5
-      });
-    }
+    onSave(reportName, currentReport, currentEffort);
+    onOpenChange(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setCurrentReport({ languages: [], total: DEFAULT_STATS });
+    setReportName("Repo 1");
+    setPasteContent("");
+    setCurrentEffort(DEFAULT_EFFORT);
   };
 
   const handlePasteData = (data: string) => {
@@ -65,34 +90,34 @@ const ReportModal = ({
         comments: acc.comments + lang.Comments,
         blanks: acc.blanks + lang.Blanks,
         complexity: acc.complexity + lang.Complexity
-      }), {
-        files: 0,
-        lines: 0,
-        code: 0,
-        comments: 0,
-        blanks: 0,
-        complexity: 0
-      });
+      }), DEFAULT_STATS);
 
       setCurrentReport({ languages, total });
+
+      // Update effort if estimates are available
+      if (estimates.estimatedMonths || estimates.estimatedPeople) {
+        setCurrentEffort(prev => ({
+          ...prev,
+          ...(estimates.estimatedMonths && { estimatedMonths: estimates.estimatedMonths }),
+          ...(estimates.estimatedPeople && { estimatedPeople: estimates.estimatedPeople })
+        }));
+      }
     } catch (error) {
       console.error('Error processing pasted data:', error);
     }
   };
 
   const handleStatsChange = (total: SCCReport['total']) => {
-    if (currentReport) {
-      setCurrentReport({
-        ...currentReport,
-        total
-      });
-    }
+    setCurrentReport(prev => ({
+      ...prev,
+      total
+    }));
   };
 
-  const handleEffortChange = (field: keyof EffortMetrics, value: string) => {
+  const handleEffortChange = (type: 'estimated' | 'actual', field: 'months' | 'people', value: string) => {
     setCurrentEffort(prev => ({
       ...prev,
-      [field]: parseFloat(value) || 0
+      [`${type}${field.charAt(0).toUpperCase() + field.slice(1)}`]: parseFloat(value) || 0
     }));
   };
 
@@ -112,98 +137,40 @@ const ReportModal = ({
             />
           </div>
 
-          <div>
-            <textarea
-              className="w-full h-32 p-2 border rounded-md font-mono text-sm"
-              placeholder="Paste your SCC report text here..."
-              value={pasteContent}
-              onChange={(e) => setPasteContent(e.target.value)}
-              onPaste={(e) => handlePasteData(e.clipboardData.getData("text"))}
+          <SCCPasteInput
+            value={pasteContent}
+            onChange={setPasteContent}
+            onPaste={handlePasteData}
+          />
+
+          <CodeStatisticsCard 
+            stats={currentReport.total}
+            onChange={handleStatsChange}
+          />
+          
+          <div className="space-y-4">
+            <EffortInputSection
+              title="Estimated Effort"
+              months={currentEffort.estimatedMonths}
+              people={currentEffort.estimatedPeople}
+              cost={calculateCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople)}
+              onChange={(field, value) => handleEffortChange('estimated', field, value)}
+            />
+
+            <EffortInputSection
+              title="Actual Effort"
+              months={currentEffort.actualMonths}
+              people={currentEffort.actualPeople}
+              cost={calculateCost(currentEffort.actualMonths, currentEffort.actualPeople)}
+              onChange={(field, value) => handleEffortChange('actual', field, value)}
             />
           </div>
-
-          {currentReport && (
-            <>
-              <CodeStatisticsCard 
-                stats={currentReport.total}
-                onChange={handleStatsChange}
-              />
-              
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Estimated Effort</h3>
-                  <div className="flex gap-4 items-center">
-                    <div className="flex-1">
-                      <label className="block text-xs text-muted-foreground mb-1">Time (months)</label>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        value={currentEffort.estimatedMonths}
-                        onChange={(e) => handleEffortChange('estimatedMonths', e.target.value)}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-xs text-muted-foreground mb-1">People per month</label>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        value={currentEffort.estimatedPeople}
-                        onChange={(e) => handleEffortChange('estimatedPeople', e.target.value)}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-xs text-muted-foreground mb-1">Cost (USD)</label>
-                      <Input
-                        type="text"
-                        value={`$${calculateCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople).toLocaleString()}`}
-                        readOnly
-                        className="bg-gray-50"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Actual Effort</h3>
-                  <div className="flex gap-4 items-center">
-                    <div className="flex-1">
-                      <label className="block text-xs text-muted-foreground mb-1">Time (months)</label>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        value={currentEffort.actualMonths}
-                        onChange={(e) => handleEffortChange('actualMonths', e.target.value)}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-xs text-muted-foreground mb-1">People per month</label>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        value={currentEffort.actualPeople}
-                        onChange={(e) => handleEffortChange('actualPeople', e.target.value)}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-xs text-muted-foreground mb-1">Cost (USD)</label>
-                      <Input
-                        type="text"
-                        value={`$${calculateCost(currentEffort.actualMonths, currentEffort.actualPeople).toLocaleString()}`}
-                        readOnly
-                        className="bg-gray-50"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={!currentReport}>
+            <Button onClick={handleSave}>
               Save Report
             </Button>
           </div>
