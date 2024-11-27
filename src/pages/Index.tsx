@@ -9,6 +9,7 @@ import LanguageChart from "@/components/LanguageChart";
 import ComplexityChart from "@/components/ComplexityChart";
 import LanguageTable from "@/components/LanguageTable";
 import ReportsTable from "@/components/ReportsTable";
+import Footer from "@/components/Footer";
 import type { SCCReport } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
@@ -220,6 +221,8 @@ const Index = () => {
             />
           </Card>
         )}
+
+        <Footer />
       </div>
     </div>
   );
