@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import FileUpload from "./FileUpload";
-import InitialEffortForm from "./InitialEffortForm";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
@@ -118,6 +118,13 @@ const ReportModal = ({
     setCurrentReport(report);
   };
 
+  const handleEffortChange = (field: keyof EffortMetrics, value: string) => {
+    setCurrentEffort(prev => ({
+      ...prev,
+      [field]: parseFloat(value) || 0
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -143,10 +150,79 @@ const ReportModal = ({
           />
 
           {currentReport && (
-            <InitialEffortForm
-              hourlyRate={70}
-              onChange={setCurrentEffort}
-            />
+            <>
+              <Card className="p-4">
+                <h3 className="text-sm font-medium mb-3">Code Statistics</h3>
+                <div className="grid grid-cols-6 gap-4 text-sm">
+                  <div>
+                    <div className="text-muted-foreground">Files</div>
+                    <div className="font-medium">{currentReport.total.files}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Lines</div>
+                    <div className="font-medium">{currentReport.total.lines}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Blanks</div>
+                    <div className="font-medium">{currentReport.total.blanks}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Comments</div>
+                    <div className="font-medium">{currentReport.total.comments}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Code</div>
+                    <div className="font-medium">{currentReport.total.code}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Complexity</div>
+                    <div className="font-medium">{currentReport.total.complexity}</div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4 space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Estimated Effort</h3>
+                  <div className="flex gap-4">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={currentEffort.estimatedMonths}
+                      onChange={(e) => handleEffortChange('estimatedMonths', e.target.value)}
+                      placeholder="Months"
+                    />
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={currentEffort.estimatedPeople}
+                      onChange={(e) => handleEffortChange('estimatedPeople', e.target.value)}
+                      placeholder="People"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Actual Effort</h3>
+                  <div className="flex gap-4">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={currentEffort.actualMonths}
+                      onChange={(e) => handleEffortChange('actualMonths', e.target.value)}
+                      placeholder="Months"
+                    />
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={currentEffort.actualPeople}
+                      onChange={(e) => handleEffortChange('actualPeople', e.target.value)}
+                      placeholder="People"
+                    />
+                  </div>
+                </div>
+              </Card>
+            </>
           )}
 
           <div className="flex justify-end gap-2">
