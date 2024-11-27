@@ -10,6 +10,13 @@ export interface SCCLanguage {
   Files: string[];
 }
 
+export interface EffortMetrics {
+  estimatedMonths: number;
+  estimatedPeople: number;
+  actualMonths: number;
+  actualPeople: number;
+}
+
 export interface SCCReport {
   languages: SCCLanguage[];
   total: {
@@ -20,9 +27,11 @@ export interface SCCReport {
     complexity: number;
     files: number;
   };
+  effort?: EffortMetrics;
 }
 
 export interface ReportEntry extends SCCReport {
   id: number;
   name: string;
+  effort: EffortMetrics;
 }

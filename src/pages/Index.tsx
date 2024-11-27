@@ -9,19 +9,15 @@ import LanguageChart from "@/components/LanguageChart";
 import ComplexityChart from "@/components/ComplexityChart";
 import LanguageTable from "@/components/LanguageTable";
 import ReportsTable from "@/components/ReportsTable";
-import Footer from "@/components/Footer";
-import type { SCCReport } from "@/types/scc";
+import PerformanceMetrics from "@/components/PerformanceMetrics";
+import type { SCCReport, ReportEntry } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
-
-interface ReportEntry extends SCCReport {
-  id: number;
-  name: string;
-}
 
 const Index = () => {
   const [currentReport, setCurrentReport] = useState<SCCReport | null>(null);
   const [reports, setReports] = useState<ReportEntry[]>([]);
   const [reportName, setReportName] = useState("");
+  const [hourlyRate, setHourlyRate] = useState(70);
   const { toast } = useToast();
 
   const handleSaveReport = () => {
@@ -154,10 +150,35 @@ const Index = () => {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             SCC Report Visualizer
           </h1>
-          <p className="text-lg text-gray-600">
-            Upload or paste your SCC report to visualize your codebase statistics
-          </p>
+          <h3 className="text-lg text-gray-600 mb-4">
+            Created by{" "}
+            <a
+              href="https://www.linkedin.com/in/bradaross/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-600 hover:text-purple-800 underline"
+            >
+              Bradley Ross
+            </a>
+          </h3>
+          
+          <div className="max-w-xs mx-auto mb-8">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Developer Hourly Rate (USD)
+            </label>
+            <Input
+              type="number"
+              value={hourlyRate}
+              onChange={(e) => setHourlyRate(Number(e.target.value))}
+              min="0"
+              className="text-center"
+            />
+          </div>
         </div>
+
+        {reports.length > 0 && (
+          <PerformanceMetrics reports={reports} />
+        )}
 
         <FileUpload
           onUpload={handleFileUpload}
@@ -218,11 +239,10 @@ const Index = () => {
               reports={reports}
               onEdit={handleEditReport}
               onDelete={handleDeleteReport}
+              hourlyRate={hourlyRate}
             />
           </Card>
         )}
-
-        <Footer />
       </div>
     </div>
   );

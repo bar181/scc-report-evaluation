@@ -8,20 +8,20 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
-import type { SCCReport } from "@/types/scc";
-
-interface ReportEntry extends SCCReport {
-  id: number;
-  name: string;
-}
+import type { ReportEntry } from "@/types/scc";
 
 interface ReportsTableProps {
   reports: ReportEntry[];
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  hourlyRate: number;
 }
 
-const ReportsTable = ({ reports, onEdit, onDelete }: ReportsTableProps) => {
+const ReportsTable = ({ reports, onEdit, onDelete, hourlyRate }: ReportsTableProps) => {
+  const calculateCost = (months: number, people: number) => {
+    return months * people * hourlyRate * 160;
+  };
+
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -30,41 +30,60 @@ const ReportsTable = ({ reports, onEdit, onDelete }: ReportsTableProps) => {
             <TableHead>Repository Name</TableHead>
             <TableHead className="text-right">Files</TableHead>
             <TableHead className="text-right">Lines</TableHead>
-            <TableHead className="text-right">Code</TableHead>
-            <TableHead className="text-right">Comments</TableHead>
-            <TableHead className="text-right">Blanks</TableHead>
+            <TableHead className="text-right">Est. Cost ($)</TableHead>
+            <TableHead className="text-right">Act. Cost ($)</TableHead>
+            <TableHead className="text-right">Difference ($)</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {reports.map((report) => (
-            <TableRow key={report.id}>
-              <TableCell className="font-medium">{report.name}</TableCell>
-              <TableCell className="text-right">{report.total.files}</TableCell>
-              <TableCell className="text-right">{report.total.lines}</TableCell>
-              <TableCell className="text-right">{report.total.code}</TableCell>
-              <TableCell className="text-right">{report.total.comments}</TableCell>
-              <TableCell className="text-right">{report.total.blanks}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => onEdit(report.id)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => onDelete(report.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+          {reports.map((report) => {
+            const estimatedCost = calculateCost(
+              report.effort.estimatedMonths,
+              report.effort.estimatedPeople
+            );
+            const actualCost = calculateCost(
+              report.effort.actualMonths,
+              report.effort.actualPeople
+            );
+            const difference = estimatedCost - actualCost;
+
+            return (
+              <TableRow key={report.id}>
+                <TableCell className="font-medium">{report.name}</TableCell>
+                <TableCell className="text-right">{report.total.files}</TableCell>
+                <TableCell className="text-right">{report.total.lines}</TableCell>
+                <TableCell className="text-right">
+                  ${estimatedCost.toLocaleString()}
+                </TableCell>
+                <TableCell className="text-right">
+                  ${actualCost.toLocaleString()}
+                </TableCell>
+                <TableCell className={`text-right ${difference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ${Math.abs(difference).toLocaleString()}
+                  {difference >= 0 ? ' under' : ' over'}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => onEdit(report.id)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => onDelete(report.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>
