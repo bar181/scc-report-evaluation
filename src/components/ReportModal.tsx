@@ -1,7 +1,7 @@
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import FileUpload from "./FileUpload";
 import CodeStatisticsCard from "./CodeStatisticsCard";
 import EffortInputsCard from "./EffortInputsCard";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
@@ -32,6 +32,7 @@ const ReportModal = ({
     actualMonths: 4,
     actualPeople: 1.5
   });
+  const [pasteContent, setPasteContent] = useState("");
 
   const handleSave = () => {
     if (currentReport) {
@@ -39,39 +40,13 @@ const ReportModal = ({
       onOpenChange(false);
       setCurrentReport(null);
       setReportName("");
+      setPasteContent("");
       setCurrentEffort({
         estimatedMonths: 3,
         estimatedPeople: 2,
         actualMonths: 4,
         actualPeople: 1.5
       });
-    }
-  };
-
-  const handleFileUpload = async (file: File) => {
-    try {
-      const text = await file.text();
-      const { languages, estimates } = parseSCCText(text);
-      
-      const total = languages.reduce((acc, lang) => ({
-        files: acc.files + lang.Count,
-        lines: acc.lines + lang.Lines,
-        code: acc.code + lang.Code,
-        comments: acc.comments + lang.Comments,
-        blanks: acc.blanks + lang.Blanks,
-        complexity: acc.complexity + lang.Complexity
-      }), {
-        files: 0,
-        lines: 0,
-        code: 0,
-        comments: 0,
-        blanks: 0,
-        complexity: 0
-      });
-
-      setCurrentReport({ languages, total });
-    } catch (error) {
-      console.error('Error processing file:', error);
     }
   };
 
@@ -101,21 +76,6 @@ const ReportModal = ({
     }
   };
 
-  const handleManualEntry = (data: any) => {
-    const report: SCCReport = {
-      languages: [],
-      total: {
-        files: data.files,
-        lines: data.lines,
-        code: data.code,
-        comments: data.comments,
-        blanks: data.blanks,
-        complexity: data.complexity
-      }
-    };
-    setCurrentReport(report);
-  };
-
   const handleStatsChange = (total: SCCReport['total']) => {
     if (currentReport) {
       setCurrentReport({
@@ -143,11 +103,15 @@ const ReportModal = ({
             />
           </div>
 
-          <FileUpload
-            onUpload={handleFileUpload}
-            onPaste={handlePasteData}
-            onManualEntry={handleManualEntry}
-          />
+          <div>
+            <textarea
+              className="w-full h-32 p-2 border rounded-md font-mono text-sm"
+              placeholder="Paste your SCC report text here..."
+              value={pasteContent}
+              onChange={(e) => setPasteContent(e.target.value)}
+              onPaste={(e) => handlePasteData(e.clipboardData.getData("text"))}
+            />
+          </div>
 
           {currentReport && (
             <>
