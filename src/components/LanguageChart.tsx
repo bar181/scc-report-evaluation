@@ -10,6 +10,7 @@ const COLORS = ["#8B5CF6", "#7E69AB", "#6E59A5", "#D6BCFA", "#9b87f5"];
 const LanguageChart = ({ languages }: LanguageChartProps) => {
   const data = languages
     .sort((a, b) => b.Code - a.Code)
+    .slice(0, 5)
     .map((lang) => ({
       name: lang.Name,
       value: lang.Code,

@@ -3,7 +3,6 @@ import { Toggle } from "@/components/ui/toggle";
 import { Eye, EyeOff } from "lucide-react";
 import type { ReportEntry } from "@/types/scc";
 import { useCostVisibility } from "@/contexts/CostVisibilityContext";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import LanguageChart from "./LanguageChart";
 import ComplexityChart from "./ComplexityChart";
 
@@ -73,18 +72,6 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
   };
 
   const metrics = calculateMetrics();
-
-  const performanceData = reports.map((report) => {
-    const estimatedEffort = report.effort.estimatedMonths * report.effort.estimatedPeople;
-    const actualEffort = report.effort.actualMonths * report.effort.actualPeople;
-    
-    return {
-      name: report.name,
-      "Estimated Effort": Number(estimatedEffort.toFixed(2)),
-      "Actual Effort": showActualCosts ? Number(actualEffort.toFixed(2)) : null,
-      "Performance Ratio": Number((estimatedEffort / actualEffort).toFixed(2))
-    };
-  });
 
   return (
     <div className="space-y-8">
@@ -167,40 +154,17 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
         </h3>
       </div>
 
-      {reports.length > 0 && (
-        <div className="space-y-8">
+      {reports.length > 0 && reports[0]?.languages && reports[0].languages.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-xl font-bold mb-6">Performance Metrics</h3>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={performanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="Estimated Effort" fill="#8B5CF6" />
-                  {showActualCosts && (
-                    <Bar dataKey="Actual Effort" fill="#7E69AB" />
-                  )}
-                  <Bar dataKey="Performance Ratio" fill="#D6BCFA" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <h3 className="text-xl font-bold mb-6">Language Distribution</h3>
+            <LanguageChart languages={reports[0].languages} />
           </div>
 
-          {reports[0]?.languages && reports[0].languages.length > 0 && (
-            <>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-bold mb-6">Language Distribution</h3>
-                <LanguageChart languages={reports[0].languages} />
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-bold mb-6">Code Complexity by Language</h3>
-                <ComplexityChart languages={reports[0].languages} />
-              </div>
-            </>
-          )}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-bold mb-6">Code Complexity by Language</h3>
+            <ComplexityChart languages={reports[0].languages} />
+          </div>
         </div>
       )}
     </div>
