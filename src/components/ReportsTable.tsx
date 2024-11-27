@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useCostVisibility } from "@/contexts/CostVisibilityContext";
 import type { ReportEntry } from "@/types/scc";
 
 interface ReportsTableProps {
@@ -26,6 +27,8 @@ const ReportsTable = ({
   hourlyRate,
   onAddNew 
 }: ReportsTableProps) => {
+  const { showActualCosts } = useCostVisibility();
+
   const calculateCost = (months: number, people: number) => {
     return Math.round(months * people * hourlyRate * 160);
   };
@@ -42,38 +45,6 @@ const ReportsTable = ({
           Add Report
         </Button>
       </div>
-
-      {reports.length > 0 && (
-        <Card className="p-6 mb-6 bg-gradient-to-br from-purple-50 to-white">
-          <h3 className="text-lg font-semibold mb-4">Summary of All Projects</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Total Projects</p>
-              <p className="text-xl font-bold">{reports.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Files</p>
-              <p className="text-xl font-bold">
-                {reports.reduce((sum, r) => sum + (r.total?.files || 0), 0).toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Lines</p>
-              <p className="text-xl font-bold">
-                {reports.reduce((sum, r) => sum + (r.total?.lines || 0), 0).toLocaleString()}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Cost</p>
-              <p className="text-xl font-bold">
-                ${reports.reduce((sum, r) => 
-                  sum + calculateCost(r.effort.actualMonths, r.effort.actualPeople), 0
-                ).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {reports.map((report) => {
@@ -128,16 +99,20 @@ const ReportsTable = ({
                   <p className="text-sm text-gray-600">Est. Cost</p>
                   <p className="font-medium">${estimatedCost.toLocaleString()}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Act. Cost</p>
-                  <p className="font-medium">${actualCost.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">ROI</p>
-                  <p className={`font-medium ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    ${Math.abs(roi).toLocaleString()}
-                  </p>
-                </div>
+                {showActualCosts && (
+                  <>
+                    <div>
+                      <p className="text-sm text-gray-600">Act. Cost</p>
+                      <p className="font-medium">${actualCost.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">ROI</p>
+                      <p className={`font-medium ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        ${Math.abs(roi).toLocaleString()}
+                      </p>
+                    </div>
+                  </>
+                )}
                 <div>
                   <p className="text-sm text-gray-600">Team Size</p>
                   <div className="flex items-center gap-2">
