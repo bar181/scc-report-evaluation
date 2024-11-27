@@ -10,6 +10,7 @@ import ComplexityChart from "@/components/ComplexityChart";
 import LanguageTable from "@/components/LanguageTable";
 import ReportsTable from "@/components/ReportsTable";
 import type { SCCReport } from "@/types/scc";
+import { parseSCCText } from "@/lib/sccParser";
 
 interface ReportEntry extends SCCReport {
   id: number;
