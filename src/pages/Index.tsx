@@ -9,7 +9,7 @@ import { useCostVisibility } from "@/contexts/CostVisibilityContext";
 const Index = () => {
   const [hourlyRate, setHourlyRate] = useState(70);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [title, setTitle] = useState("Project Report Evaluation");
+  const [title, setTitle] = useState("Consultant Performance Analyzer - by Bradley");
   const { showActualCosts } = useCostVisibility();
 
   return (
@@ -46,7 +46,7 @@ const Index = () => {
             )}
           </div>
           <p className="text-lg text-gray-600 mb-4">
-            This SCC Performance Analyzer was created by{" "}
+            This Consultant Performance Analyzer was created by{" "}
             <a
               href="https://www.linkedin.com/in/bradaross/"
               target="_blank"
