@@ -14,11 +14,17 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
   const [editingReport, setEditingReport] = useState<ReportEntry | null>(null);
   const { toast } = useToast();
 
+  const generateReportName = () => {
+    const repoNumber = reports.length + 1;
+    return `Repo ${repoNumber}`;
+  };
+
   const handleSaveReport = (name: string, report: SCCReport, effort: EffortMetrics) => {
+    const reportName = name.trim() || generateReportName();
     const newReport: ReportEntry = {
       ...report,
       id: editingReport?.id || Date.now(),
-      name,
+      name: reportName,
       effort
     };
 
@@ -31,7 +37,7 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
 
     toast({
       title: editingReport ? "Report updated" : "Report saved",
-      description: `Report "${name}" has been ${editingReport ? 'updated' : 'saved'} successfully`,
+      description: `Report "${reportName}" has been ${editingReport ? 'updated' : 'saved'} successfully`,
     });
   };
 
@@ -51,17 +57,6 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
     });
   };
 
-  const handleEffortUpdate = (id: number, effort: ReportEntry['effort']) => {
-    setReports(prev => prev.map(report => 
-      report.id === id ? { ...report, effort } : report
-    ));
-    
-    toast({
-      title: "Effort updated",
-      description: "The effort metrics have been updated successfully",
-    });
-  };
-
   const handleModalClose = () => {
     setIsModalOpen(false);
     setEditingReport(null);
@@ -74,7 +69,6 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
         onEdit={handleEdit}
         onDelete={handleDelete}
         hourlyRate={hourlyRate}
-        onEffortUpdate={handleEffortUpdate}
         onAddNew={() => setIsModalOpen(true)}
       />
       <ReportModal
@@ -82,7 +76,7 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
         onOpenChange={handleModalClose}
         onSave={handleSaveReport}
         initialReport={editingReport || undefined}
-        initialName={editingReport?.name}
+        initialName={editingReport?.name || generateReportName()}
         initialEffort={editingReport?.effort}
       />
     </>

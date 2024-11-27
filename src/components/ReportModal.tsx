@@ -35,7 +35,7 @@ const ReportModal = ({
 
   const calculateCost = (months: number, people: number) => {
     const hourlyRate = 100; // Default hourly rate
-    return months * people * hourlyRate * 160; // 160 hours per month
+    return Math.round(months * people * hourlyRate * 160); // 160 hours per month
   };
 
   const handleSave = () => {
@@ -100,7 +100,7 @@ const ReportModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Add New Report</DialogTitle>
+          <DialogTitle>{initialReport ? 'Edit Report' : 'Add New Report'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div>
@@ -134,24 +134,25 @@ const ReportModal = ({
                   <h3 className="text-sm font-medium mb-2">Estimated Effort</h3>
                   <div className="flex gap-4 items-center">
                     <div className="flex-1">
+                      <label className="block text-xs text-muted-foreground mb-1">Time (months)</label>
                       <Input
                         type="number"
                         step="0.1"
                         value={currentEffort.estimatedMonths}
                         onChange={(e) => handleEffortChange('estimatedMonths', e.target.value)}
-                        placeholder="Months"
                       />
                     </div>
                     <div className="flex-1">
+                      <label className="block text-xs text-muted-foreground mb-1">People per month</label>
                       <Input
                         type="number"
                         step="0.1"
                         value={currentEffort.estimatedPeople}
                         onChange={(e) => handleEffortChange('estimatedPeople', e.target.value)}
-                        placeholder="People"
                       />
                     </div>
                     <div className="flex-1">
+                      <label className="block text-xs text-muted-foreground mb-1">Cost (USD)</label>
                       <Input
                         type="text"
                         value={`$${calculateCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople).toLocaleString()}`}
@@ -166,24 +167,25 @@ const ReportModal = ({
                   <h3 className="text-sm font-medium mb-2">Actual Effort</h3>
                   <div className="flex gap-4 items-center">
                     <div className="flex-1">
+                      <label className="block text-xs text-muted-foreground mb-1">Time (months)</label>
                       <Input
                         type="number"
                         step="0.1"
                         value={currentEffort.actualMonths}
                         onChange={(e) => handleEffortChange('actualMonths', e.target.value)}
-                        placeholder="Months"
                       />
                     </div>
                     <div className="flex-1">
+                      <label className="block text-xs text-muted-foreground mb-1">People per month</label>
                       <Input
                         type="number"
                         step="0.1"
                         value={currentEffort.actualPeople}
                         onChange={(e) => handleEffortChange('actualPeople', e.target.value)}
-                        placeholder="People"
                       />
                     </div>
                     <div className="flex-1">
+                      <label className="block text-xs text-muted-foreground mb-1">Cost (USD)</label>
                       <Input
                         type="text"
                         value={`$${calculateCost(currentEffort.actualMonths, currentEffort.actualPeople).toLocaleString()}`}
