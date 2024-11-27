@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -16,7 +15,6 @@ interface ReportsTableProps {
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
   hourlyRate: number;
-  onEffortUpdate?: (id: number, effort: ReportEntry['effort']) => void;
   onAddNew: () => void;
 }
 
@@ -31,6 +29,10 @@ const ReportsTable = ({
     return Math.round(months * people * hourlyRate * 160);
   };
 
+  const calculatePerformance = (estimated: number, actual: number) => {
+    return estimated / actual;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -43,12 +45,12 @@ const ReportsTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Repository Name</TableHead>
-              <TableHead className="text-right">Files</TableHead>
-              <TableHead className="text-right">Lines</TableHead>
+              <TableHead>Project Name</TableHead>
+              <TableHead className="text-right">Time Period</TableHead>
+              <TableHead className="text-right">Performance</TableHead>
               <TableHead className="text-right">Est. Cost (USD)</TableHead>
               <TableHead className="text-right">Act. Cost (USD)</TableHead>
-              <TableHead className="text-right">Difference (USD)</TableHead>
+              <TableHead className="text-right">ROI (USD)</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -64,29 +66,35 @@ const ReportsTable = ({
                 report.effort.actualMonths,
                 report.effort.actualPeople
               );
-              const difference = estimatedCost - actualCost;
+              const roi = estimatedCost - actualCost;
+              const performance = calculatePerformance(
+                report.effort.estimatedMonths * report.effort.estimatedPeople,
+                report.effort.actualMonths * report.effort.actualPeople
+              );
 
               return (
                 <TableRow key={report.id}>
                   <TableCell className="font-medium">
                     {report.name}
-                    <div className="text-sm text-muted-foreground">
-                      Est: {report.effort.estimatedMonths.toFixed(1)}m × {report.effort.estimatedPeople.toFixed(1)}p
-                      <br />
-                      Act: {report.effort.actualMonths.toFixed(1)}m × {report.effort.actualPeople.toFixed(1)}p
-                    </div>
                   </TableCell>
-                  <TableCell className="text-right">{report.total.files}</TableCell>
-                  <TableCell className="text-right">{report.total.lines}</TableCell>
+                  <TableCell className="text-right">
+                    {report.effort.actualMonths.toFixed(1)} months
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {performance.toFixed(2)}x
+                  </TableCell>
                   <TableCell className="text-right">
                     ${estimatedCost.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-right">
                     ${actualCost.toLocaleString()}
                   </TableCell>
-                  <TableCell className={`text-right ${difference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    ${Math.abs(difference).toLocaleString()}
-                    {difference >= 0 ? ' under' : ' over'}
+                  <TableCell className={`text-right ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    ${Math.abs(roi).toLocaleString()}
+                    <br />
+                    <span className="text-xs">
+                      {roi >= 0 ? 'Under Budget' : 'Over Budget'}
+                    </span>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

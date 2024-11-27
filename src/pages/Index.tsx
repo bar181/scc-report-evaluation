@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import ReportsSection from "@/components/ReportsSection";
-import PerformanceMetrics from "@/components/PerformanceMetrics";
+import PerformanceMetricsDisplay from "@/components/PerformanceMetricsDisplay";
 
 const Index = () => {
   const [hourlyRate, setHourlyRate] = useState(70);
@@ -11,23 +11,15 @@ const Index = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            SCC Report Visualizer
+            Monthly Consultant Report
           </h1>
           <h3 className="text-lg text-gray-600 mb-4">
-            Created by{" "}
-            <a
-              href="https://www.linkedin.com/in/bradaross/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-600 hover:text-purple-800 underline"
-            >
-              Bradley Ross
-            </a>
+            Track and analyze your consulting team's performance
           </h3>
           
           <div className="max-w-xs mx-auto mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Developer Hourly Rate (USD)
+              Consultant Hourly Rate (USD)
             </label>
             <Input
               type="number"

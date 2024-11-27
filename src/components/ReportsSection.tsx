@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import ReportsTable from "./ReportsTable";
 import ReportModal from "./ReportModal";
+import PerformanceMetricsDisplay from "./PerformanceMetricsDisplay";
 import type { ReportEntry, SCCReport, EffortMetrics } from "@/types/scc";
 
 interface ReportsSectionProps {
@@ -64,6 +65,7 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
 
   return (
     <>
+      <PerformanceMetricsDisplay reports={reports} hourlyRate={hourlyRate} />
       <ReportsTable
         reports={reports}
         onEdit={handleEdit}
