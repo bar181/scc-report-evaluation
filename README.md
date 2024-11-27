@@ -1,69 +1,89 @@
-# Welcome to your Lovable project
+# Project Report Evaluation
 
-## Project info
+A powerful web application for analyzing and visualizing software project metrics, providing insights into project performance, cost estimation, and resource allocation.
 
-**URL**: https://lovable.dev/projects/e98641d7-4d94-4b5e-a55e-8535908692ec
+## Overview
 
-## How can I edit this code?
+This tool helps development teams and project managers evaluate software projects by analyzing code statistics and generating comprehensive reports. It provides valuable insights into project metrics such as:
 
-There are several ways of editing your application.
+- Performance ratios
+- Return on investment calculations
+- Resource utilization
+- Language distribution
+- Cost estimations per repository
+- Project timeline analysis
 
-**Use Lovable**
+## Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e98641d7-4d94-4b5e-a55e-8535908692ec) and start prompting.
+- 📊 Interactive data visualization with charts and graphs
+- 💰 Cost analysis and ROI calculations
+- 📈 Performance metrics tracking
+- 🔍 Detailed repository analysis
+- 📋 Project statistics summary
+- 🎨 Modern, responsive UI built with React and TypeScript
+- 📱 Mobile-friendly design
 
-Changes made via Lovable will be committed automatically to this repo.
+## Tech Stack
 
-**Use your preferred IDE**
+- TypeScript
+- React
+- Vite
+- Tailwind CSS
+- Shadcn UI Components
+- Chart.js for data visualization
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+```
+3. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `/src` - Source code files
+  - `/components` - React components
+  - `/contexts` - React context providers
+  - `/hooks` - Custom React hooks
+  - `/lib` - Utility functions and helpers
+  - `/pages` - Page components
+  - `/types` - TypeScript type definitions
 
-**Use GitHub Codespaces**
+## Features in Detail
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Performance Analysis
+- Tracks estimated vs actual time metrics
+- Calculates performance ratios
+- Monitors person-months per project
 
-## What technologies are used for this project?
+### Cost Management
+- Provides detailed cost breakdowns
+- Calculates return on investment
+- Estimates repository-specific costs
 
-This project is built with .
+### Code Analysis
+- Language distribution visualization
+- File count tracking
+- Line of code metrics
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Repository Insights
+- Individual repository performance tracking
+- Team size analysis
+- Timeline monitoring
 
-## How can I deploy this project?
+## Contributing
 
-Simply open [Lovable](https://lovable.dev/projects/e98641d7-4d94-4b5e-a55e-8535908692ec) and click on Share -> Publish.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## I want to use a custom domain - is that possible?
+## Author
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Bradley Ross - [LinkedIn](https://linkedin.com/in/bradaross/)
+
+## License
+
+This project is open source and available under the MIT license.
