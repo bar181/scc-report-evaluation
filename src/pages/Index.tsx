@@ -28,6 +28,12 @@ const Index = () => {
       ...currentReport,
       id: Date.now(),
       name,
+      effort: {
+        estimatedMonths: 3,
+        estimatedPeople: 2,
+        actualMonths: 4,
+        actualPeople: 1.5
+      }
     };
 
     setReports((prev) => [...prev, newReport]);
