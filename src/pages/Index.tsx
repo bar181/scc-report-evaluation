@@ -1,17 +1,63 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
 import FileUpload from "@/components/FileUpload";
 import SummaryStats from "@/components/SummaryStats";
 import LanguageChart from "@/components/LanguageChart";
 import ComplexityChart from "@/components/ComplexityChart";
 import LanguageTable from "@/components/LanguageTable";
+import ReportsTable from "@/components/ReportsTable";
 import type { SCCReport } from "@/types/scc";
-import { parseSCCText } from "@/lib/sccParser";
+
+interface ReportEntry extends SCCReport {
+  id: number;
+  name: string;
+}
 
 const Index = () => {
-  const [report, setReport] = useState<SCCReport | null>(null);
+  const [currentReport, setCurrentReport] = useState<SCCReport | null>(null);
+  const [reports, setReports] = useState<ReportEntry[]>([]);
+  const [reportName, setReportName] = useState("");
   const { toast } = useToast();
+
+  const handleSaveReport = () => {
+    if (!currentReport) return;
+
+    const name = reportName || `Repository ${reports.length + 1}`;
+    const newReport: ReportEntry = {
+      ...currentReport,
+      id: Date.now(),
+      name,
+    };
+
+    setReports((prev) => [...prev, newReport]);
+    setCurrentReport(null);
+    setReportName("");
+
+    toast({
+      title: "Report saved",
+      description: `Report "${name}" has been saved successfully`,
+    });
+  };
+
+  const handleEditReport = (id: number) => {
+    const report = reports.find((r) => r.id === id);
+    if (report) {
+      setCurrentReport(report);
+      setReportName(report.name);
+      setReports((prev) => prev.filter((r) => r.id !== id));
+    }
+  };
+
+  const handleDeleteReport = (id: number) => {
+    setReports((prev) => prev.filter((r) => r.id !== id));
+    toast({
+      title: "Report deleted",
+      description: "The report has been removed successfully",
+    });
+  };
 
   const processLanguageData = (languages: any[]) => {
     const total = languages.reduce(
@@ -41,7 +87,7 @@ const Index = () => {
       }
 
       const transformedData = processLanguageData(data);
-      setReport(transformedData);
+      setCurrentReport(transformedData);
       
       toast({
         title: "Report loaded successfully",
@@ -61,7 +107,7 @@ const Index = () => {
     try {
       const data = parseSCCText(text);
       const transformedData = processLanguageData(data);
-      setReport(transformedData);
+      setCurrentReport(transformedData);
       
       toast({
         title: "Report loaded successfully",
@@ -82,7 +128,7 @@ const Index = () => {
       languages: [],
       total: data
     };
-    setReport(transformedData);
+    setCurrentReport(transformedData);
     
     toast({
       title: "Manual entry saved",
@@ -91,10 +137,10 @@ const Index = () => {
   };
 
   const handleStatsChange = (newStats: any) => {
-    if (report) {
-      setReport({
-        ...report,
-        total: newStats
+    if (currentReport) {
+      setCurrentReport({
+        ...currentReport,
+        total: newStats,
       });
     }
   };
@@ -111,16 +157,30 @@ const Index = () => {
           </p>
         </div>
 
-        <FileUpload 
-          onUpload={handleFileUpload} 
+        <FileUpload
+          onUpload={handleFileUpload}
           onPaste={handlePaste}
           onManualEntry={handleManualEntry}
         />
 
-        {report && (
+        {currentReport && (
           <div className="space-y-8 animate-fade-in mt-8">
-            <SummaryStats 
-              stats={report.total}
+            <div className="flex gap-4 items-end">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Repository Name
+                </label>
+                <Input
+                  value={reportName}
+                  onChange={(e) => setReportName(e.target.value)}
+                  placeholder="Enter repository name"
+                />
+              </div>
+              <Button onClick={handleSaveReport}>Save Report</Button>
+            </div>
+
+            <SummaryStats
+              stats={currentReport.total}
               onStatsChange={handleStatsChange}
             />
 
@@ -129,14 +189,14 @@ const Index = () => {
                 <h2 className="text-xl font-semibold mb-4">
                   Language Distribution
                 </h2>
-                <LanguageChart languages={report.languages} />
+                <LanguageChart languages={currentReport.languages} />
               </Card>
 
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">
                   Complexity Analysis
                 </h2>
-                <ComplexityChart languages={report.languages} />
+                <ComplexityChart languages={currentReport.languages} />
               </Card>
             </div>
 
@@ -144,9 +204,20 @@ const Index = () => {
               <h2 className="text-xl font-semibold mb-4">
                 Detailed Language Statistics
               </h2>
-              <LanguageTable languages={report.languages} />
+              <LanguageTable languages={currentReport.languages} />
             </Card>
           </div>
+        )}
+
+        {reports.length > 0 && (
+          <Card className="mt-8 p-6">
+            <h2 className="text-xl font-semibold mb-4">Saved Reports</h2>
+            <ReportsTable
+              reports={reports}
+              onEdit={handleEditReport}
+              onDelete={handleDeleteReport}
+            />
+          </Card>
         )}
       </div>
     </div>

@@ -21,3 +21,8 @@ export interface SCCReport {
     files: number;
   };
 }
+
+export interface ReportEntry extends SCCReport {
+  id: number;
+  name: string;
+}
