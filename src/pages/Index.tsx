@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import ReportsSection from "@/components/ReportsSection";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExternalLink } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   const [hourlyRate, setHourlyRate] = useState(70);
@@ -14,19 +15,18 @@ const Index = () => {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Project Report Evaluation
           </h1>
-          <h3 className="text-lg text-gray-600 mb-4">
-            Track and analyze your consulting team's performance
-          </h3>
-          
-          <Alert className="mb-6 text-left">
-            <AlertDescription className="flex items-center gap-2">
-              Estimates are prepared using the standard SCC report findings. 
-              Visit <a href="https://github.com/boyter/scc/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline inline-flex items-center gap-1">
-                SCC Documentation
-                <ExternalLink className="h-3 w-3" />
-              </a> or install using: <code className="bg-gray-100 px-2 py-1 rounded">go install github.com/boyter/scc/v3@latest</code>
-            </AlertDescription>
-          </Alert>
+          <p className="text-lg text-gray-600 mb-4">
+            Created by{" "}
+            <a
+              href="https://www.linkedin.com/in/bradaross/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-600 hover:text-purple-800 underline inline-flex items-center gap-1"
+            >
+              Bradley Ross
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          </p>
           
           <div className="max-w-xs mx-auto mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -43,6 +43,7 @@ const Index = () => {
         </div>
 
         <ReportsSection hourlyRate={hourlyRate} />
+        <Footer />
       </div>
     </div>
   );

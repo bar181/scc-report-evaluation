@@ -7,7 +7,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import type { ReportEntry } from "@/types/scc";
 
 interface ReportsTableProps {
@@ -35,90 +36,129 @@ const ReportsTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end mb-6">
         <Button onClick={onAddNew}>
           <Plus className="h-4 w-4 mr-2" />
           Add Report
         </Button>
       </div>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Project Name</TableHead>
-              <TableHead className="text-right">Time Period</TableHead>
-              <TableHead className="text-right">Performance</TableHead>
-              <TableHead className="text-right">Est. Cost (USD)</TableHead>
-              <TableHead className="text-right">Act. Cost (USD)</TableHead>
-              <TableHead className="text-right">ROI (USD)</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {reports.map((report) => {
-              if (!report?.total) return null;
-              
-              const estimatedCost = calculateCost(
-                report.effort.estimatedMonths,
-                report.effort.estimatedPeople
-              );
-              const actualCost = calculateCost(
-                report.effort.actualMonths,
-                report.effort.actualPeople
-              );
-              const roi = estimatedCost - actualCost;
-              const performance = calculatePerformance(
-                report.effort.estimatedMonths * report.effort.estimatedPeople,
-                report.effort.actualMonths * report.effort.actualPeople
-              );
 
-              return (
-                <TableRow key={report.id}>
-                  <TableCell className="font-medium">
-                    {report.name}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {report.effort.actualMonths.toFixed(1)} months
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {performance.toFixed(2)}x
-                  </TableCell>
-                  <TableCell className="text-right">
-                    ${estimatedCost.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    ${actualCost.toLocaleString()}
-                  </TableCell>
-                  <TableCell className={`text-right ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+      {reports.length > 0 && (
+        <Card className="p-6 mb-6 bg-gradient-to-br from-purple-50 to-white">
+          <h3 className="text-lg font-semibold mb-4">Summary of All Projects</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">Total Projects</p>
+              <p className="text-xl font-bold">{reports.length}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Total Files</p>
+              <p className="text-xl font-bold">
+                {reports.reduce((sum, r) => sum + (r.total?.files || 0), 0).toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Total Lines</p>
+              <p className="text-xl font-bold">
+                {reports.reduce((sum, r) => sum + (r.total?.lines || 0), 0).toLocaleString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Total Cost</p>
+              <p className="text-xl font-bold">
+                ${reports.reduce((sum, r) => 
+                  sum + calculateCost(r.effort.actualMonths, r.effort.actualPeople), 0
+                ).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {reports.map((report) => {
+          if (!report?.total) return null;
+          
+          const estimatedCost = calculateCost(
+            report.effort.estimatedMonths,
+            report.effort.estimatedPeople
+          );
+          const actualCost = calculateCost(
+            report.effort.actualMonths,
+            report.effort.actualPeople
+          );
+          const roi = estimatedCost - actualCost;
+          const performance = calculatePerformance(
+            report.effort.estimatedMonths * report.effort.estimatedPeople,
+            report.effort.actualMonths * report.effort.actualPeople
+          );
+
+          return (
+            <Card key={report.id} className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-lg font-semibold">{report.name}</h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onEdit(report.id)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onDelete(report.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-sm text-gray-600">Time Period</p>
+                  <p className="font-medium">{report.effort.actualMonths.toFixed(1)} months</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Performance</p>
+                  <p className="font-medium">{performance.toFixed(2)}x</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Est. Cost</p>
+                  <p className="font-medium">${estimatedCost.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Act. Cost</p>
+                  <p className="font-medium">${actualCost.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">ROI</p>
+                  <p className={`font-medium ${roi >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     ${Math.abs(roi).toLocaleString()}
-                    <br />
-                    <span className="text-xs">
-                      {roi >= 0 ? 'Under Budget' : 'Over Budget'}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => onEdit(report.id)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => onDelete(report.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Team Size</p>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    <p className="font-medium">
+                      {report.effort.estimatedPeople.toFixed(1)} → {report.effort.actualPeople.toFixed(1)}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Total Lines</p>
+                  <p className="font-medium">{report.total.lines.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Total Files</p>
+                  <p className="font-medium">{report.total.files.toLocaleString()}</p>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
