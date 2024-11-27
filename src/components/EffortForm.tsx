@@ -34,62 +34,76 @@ const EffortForm = ({ effort, hourlyRate, onSave, onCancel }: EffortFormProps) =
 
   return (
     <Card className="p-4 space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Est. Months</label>
-          <Input
-            type="number"
-            step="0.1"
-            value={formData.estimatedMonths}
-            onChange={(e) => handleChange('estimatedMonths', e.target.value)}
-          />
+          <h3 className="font-medium mb-2">Estimated</h3>
+          <div className="flex gap-4 items-center">
+            <div className="flex-1">
+              <Input
+                type="number"
+                step="0.1"
+                value={formData.estimatedMonths}
+                onChange={(e) => handleChange('estimatedMonths', e.target.value)}
+                placeholder="Months"
+              />
+            </div>
+            <span>×</span>
+            <div className="flex-1">
+              <Input
+                type="number"
+                step="0.1"
+                value={formData.estimatedPeople}
+                onChange={(e) => handleChange('estimatedPeople', e.target.value)}
+                placeholder="People"
+              />
+            </div>
+            <span>=</span>
+            <div className="flex-1">
+              <Input
+                type="text"
+                value={`$${estimatedCost.toLocaleString()}`}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+          </div>
         </div>
+
         <div>
-          <label className="block text-sm font-medium mb-1">Est. People</label>
-          <Input
-            type="number"
-            step="0.1"
-            value={formData.estimatedPeople}
-            onChange={(e) => handleChange('estimatedPeople', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Est. Cost ($)</label>
-          <Input
-            type="text"
-            value={estimatedCost.toLocaleString()}
-            readOnly
-            className="bg-gray-50"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Act. Months</label>
-          <Input
-            type="number"
-            step="0.1"
-            value={formData.actualMonths}
-            onChange={(e) => handleChange('actualMonths', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Act. People</label>
-          <Input
-            type="number"
-            step="0.1"
-            value={formData.actualPeople}
-            onChange={(e) => handleChange('actualPeople', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Act. Cost ($)</label>
-          <Input
-            type="text"
-            value={actualCost.toLocaleString()}
-            readOnly
-            className="bg-gray-50"
-          />
+          <h3 className="font-medium mb-2">Actual</h3>
+          <div className="flex gap-4 items-center">
+            <div className="flex-1">
+              <Input
+                type="number"
+                step="0.1"
+                value={formData.actualMonths}
+                onChange={(e) => handleChange('actualMonths', e.target.value)}
+                placeholder="Months"
+              />
+            </div>
+            <span>×</span>
+            <div className="flex-1">
+              <Input
+                type="number"
+                step="0.1"
+                value={formData.actualPeople}
+                onChange={(e) => handleChange('actualPeople', e.target.value)}
+                placeholder="People"
+              />
+            </div>
+            <span>=</span>
+            <div className="flex-1">
+              <Input
+                type="text"
+                value={`$${actualCost.toLocaleString()}`}
+                readOnly
+                className="bg-gray-50"
+              />
+            </div>
+          </div>
         </div>
       </div>
+
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onCancel}>Cancel</Button>
         <Button onClick={() => onSave(formData)}>Save</Button>

@@ -21,7 +21,9 @@ const FileUpload = ({ onUpload, onPaste, onManualEntry }: FileUploadProps) => {
     comments: 0,
     blanks: 0,
     lines: 0,
-    complexity: 0
+    complexity: 0,
+    estimatedMonths: 0,
+    estimatedPeople: 0
   });
 
   const handleDrag = (e: React.DragEvent) => {
@@ -55,17 +57,21 @@ const FileUpload = ({ onUpload, onPaste, onManualEntry }: FileUploadProps) => {
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const text = e.clipboardData.getData("text");
     setPasteContent(text);
+    const { estimates } = parseSCCText(text);
+    if (estimates.estimatedMonths && estimates.estimatedPeople) {
+      setManualEntry(prev => ({
+        ...prev,
+        estimatedMonths: estimates.estimatedMonths || 0,
+        estimatedPeople: estimates.estimatedPeople || 0
+      }));
+    }
     onPaste(text);
-  };
-
-  const handleManualSubmit = () => {
-    onManualEntry(manualEntry);
   };
 
   const handleManualChange = (field: string, value: string) => {
     setManualEntry(prev => ({
       ...prev,
-      [field]: parseInt(value) || 0
+      [field]: parseFloat(value) || 0
     }));
   };
 
@@ -124,7 +130,9 @@ const FileUpload = ({ onUpload, onPaste, onManualEntry }: FileUploadProps) => {
             comments: "Comments",
             blanks: "Blank Lines",
             lines: "Total Lines",
-            complexity: "Complexity"
+            complexity: "Complexity",
+            estimatedMonths: "Estimated Months",
+            estimatedPeople: "Estimated People"
           }).map(([key, label]) => (
             <div key={key} className="space-y-2">
               <label className="text-sm font-medium">{label}</label>
@@ -133,10 +141,11 @@ const FileUpload = ({ onUpload, onPaste, onManualEntry }: FileUploadProps) => {
                 value={manualEntry[key as keyof typeof manualEntry]}
                 onChange={(e) => handleManualChange(key, e.target.value)}
                 min="0"
+                step={key.includes('estimated') ? '0.1' : '1'}
               />
             </div>
           ))}
-          <Button onClick={handleManualSubmit} className="w-full">
+          <Button onClick={() => onManualEntry(manualEntry)} className="w-full">
             Submit
           </Button>
         </Card>
