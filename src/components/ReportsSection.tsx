@@ -3,6 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import ReportsTable from "./ReportsTable";
 import ReportModal from "./ReportModal";
 import PerformanceMetricsDisplay from "./PerformanceMetricsDisplay";
+import { CostVisibilityProvider } from "@/contexts/CostVisibilityContext";
 import type { ReportEntry, SCCReport, EffortMetrics } from "@/types/scc";
 
 interface ReportsSectionProps {
@@ -64,7 +65,7 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
   };
 
   return (
-    <>
+    <CostVisibilityProvider>
       <PerformanceMetricsDisplay reports={reports} hourlyRate={hourlyRate} />
       <ReportsTable
         reports={reports}
@@ -81,7 +82,7 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
         initialName={editingReport?.name || generateReportName()}
         initialEffort={editingReport?.effort}
       />
-    </>
+    </CostVisibilityProvider>
   );
 };
 
