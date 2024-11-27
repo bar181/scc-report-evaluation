@@ -63,6 +63,8 @@ const ReportsTable = ({
           </TableHeader>
           <TableBody>
             {reports.map((report) => {
+              if (!report?.total) return null;
+              
               const estimatedCost = calculateCost(
                 report.effort.estimatedMonths,
                 report.effort.estimatedPeople
@@ -74,8 +76,8 @@ const ReportsTable = ({
               const difference = estimatedCost - actualCost;
 
               return (
-                <>
-                  <TableRow key={report.id}>
+                <React.Fragment key={report.id}>
+                  <TableRow>
                     <TableCell className="font-medium">
                       {report.name}
                       <div className="text-sm text-muted-foreground">
@@ -134,7 +136,7 @@ const ReportsTable = ({
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </React.Fragment>
               );
             })}
           </TableBody>

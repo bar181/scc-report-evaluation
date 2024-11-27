@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import FileUpload from "./FileUpload";
 import InitialEffortForm from "./InitialEffortForm";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
+import { parseSCCText } from "@/lib/sccParser";
 
 interface ReportModalProps {
   open: boolean;
@@ -47,7 +48,37 @@ const ReportModal = ({
     }
   };
 
-  const handleReportData = (report: SCCReport) => {
+  const handleFileUpload = async (file: File) => {
+    try {
+      const text = await file.text();
+      const report = parseSCCText(text);
+      setCurrentReport(report);
+    } catch (error) {
+      console.error('Error processing file:', error);
+    }
+  };
+
+  const handlePasteData = (data: string) => {
+    try {
+      const report = parseSCCText(data);
+      setCurrentReport(report);
+    } catch (error) {
+      console.error('Error processing pasted data:', error);
+    }
+  };
+
+  const handleManualEntry = (data: any) => {
+    const report: SCCReport = {
+      languages: [],
+      total: {
+        files: data.files,
+        lines: data.lines,
+        code: data.code,
+        comments: data.comments,
+        blanks: data.blanks,
+        complexity: data.complexity
+      }
+    };
     setCurrentReport(report);
   };
 
@@ -70,9 +101,9 @@ const ReportModal = ({
           </div>
 
           <FileUpload
-            onUpload={handleReportData}
-            onPaste={handleReportData}
-            onManualEntry={handleReportData}
+            onUpload={handleFileUpload}
+            onPaste={handlePasteData}
+            onManualEntry={handleManualEntry}
           />
 
           {currentReport && (
