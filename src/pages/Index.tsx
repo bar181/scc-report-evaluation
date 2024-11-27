@@ -10,6 +10,7 @@ import ComplexityChart from "@/components/ComplexityChart";
 import LanguageTable from "@/components/LanguageTable";
 import ReportsTable from "@/components/ReportsTable";
 import PerformanceMetrics from "@/components/PerformanceMetrics";
+import EffortForm from "@/components/EffortForm";
 import type { SCCReport, ReportEntry } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
@@ -149,6 +150,17 @@ const Index = () => {
     }
   };
 
+  const handleEffortUpdate = (id: number, effort: ReportEntry['effort']) => {
+    setReports(prev => prev.map(report => 
+      report.id === id ? { ...report, effort } : report
+    ));
+    
+    toast({
+      title: "Effort updated",
+      description: "The effort metrics have been updated successfully",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -246,6 +258,7 @@ const Index = () => {
               onEdit={handleEditReport}
               onDelete={handleDeleteReport}
               hourlyRate={hourlyRate}
+              onEffortUpdate={handleEffortUpdate}
             />
           </Card>
         )}
