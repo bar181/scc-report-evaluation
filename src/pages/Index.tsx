@@ -77,6 +77,28 @@ const Index = () => {
     }
   };
 
+  const handleManualEntry = (data: any) => {
+    const transformedData = {
+      languages: [],
+      total: data
+    };
+    setReport(transformedData);
+    
+    toast({
+      title: "Manual entry saved",
+      description: "Statistics have been updated",
+    });
+  };
+
+  const handleStatsChange = (newStats: any) => {
+    if (report) {
+      setReport({
+        ...report,
+        total: newStats
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -89,11 +111,18 @@ const Index = () => {
           </p>
         </div>
 
-        <FileUpload onUpload={handleFileUpload} onPaste={handlePaste} />
+        <FileUpload 
+          onUpload={handleFileUpload} 
+          onPaste={handlePaste}
+          onManualEntry={handleManualEntry}
+        />
 
         {report && (
           <div className="space-y-8 animate-fade-in mt-8">
-            <SummaryStats stats={report.total} />
+            <SummaryStats 
+              stats={report.total}
+              onStatsChange={handleStatsChange}
+            />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="p-6">
