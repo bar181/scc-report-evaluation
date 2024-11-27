@@ -3,6 +3,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { Eye, EyeOff } from "lucide-react";
 import type { ReportEntry } from "@/types/scc";
 import { useCostVisibility } from "@/contexts/CostVisibilityContext";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface PerformanceMetricsDisplayProps {
   reports: ReportEntry[];
@@ -70,6 +71,20 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
   };
 
   const metrics = calculateMetrics();
+
+  // Prepare performance trend data
+  const performanceTrendData = reports.map((report, index) => {
+    const estimatedEffort = report.effort.estimatedMonths * report.effort.estimatedPeople;
+    const actualEffort = report.effort.actualMonths * report.effort.actualPeople;
+    const performance = estimatedEffort / actualEffort;
+    
+    return {
+      name: report.name,
+      performance: Number(performance.toFixed(2)),
+      estimatedEffort: Number(estimatedEffort.toFixed(2)),
+      actualEffort: showActualCosts ? Number(actualEffort.toFixed(2)) : null
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -143,14 +158,50 @@ const PerformanceMetricsDisplay = ({ reports, hourlyRate }: PerformanceMetricsDi
         </Card>
       </div>
 
-      <div className="bg-gray-50 p-4 rounded-lg text-gray-700">
-        <p>
+      <div className="bg-gray-50 p-6 rounded-lg">
+        <h3 className="text-xl font-medium text-gray-900 mb-4">
           There {reports.length === 1 ? 'was' : 'were'} {reports.length} project{reports.length === 1 ? '' : 's'} completed 
           over a period of {metrics.totalMonths.toFixed(1)} months. 
           {metrics.totalLines.toLocaleString()} lines of code were created in {metrics.totalFiles.toLocaleString()} files. 
           The estimated value is ${metrics.estimatedCost.toLocaleString()}.
-        </p>
+        </h3>
       </div>
+
+      {reports.length > 0 && (
+        <div className="mt-8 space-y-6">
+          <h3 className="text-xl font-bold">Performance Trends</h3>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={performanceTrendData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Line 
+                  type="monotone" 
+                  dataKey="performance" 
+                  stroke="#8B5CF6" 
+                  name="Performance Ratio"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="estimatedEffort" 
+                  stroke="#10B981" 
+                  name="Estimated Effort"
+                />
+                {showActualCosts && (
+                  <Line 
+                    type="monotone" 
+                    dataKey="actualEffort" 
+                    stroke="#EF4444" 
+                    name="Actual Effort"
+                  />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
