@@ -47,6 +47,10 @@ const ReportModal = ({
     }
   };
 
+  const handleReportData = (report: SCCReport) => {
+    setCurrentReport(report);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -66,16 +70,15 @@ const ReportModal = ({
           </div>
 
           <FileUpload
-            onUpload={(report) => setCurrentReport(report)}
-            onPaste={(report) => setCurrentReport(report)}
-            onManualEntry={(report) => setCurrentReport(report)}
+            onUpload={handleReportData}
+            onPaste={handleReportData}
+            onManualEntry={handleReportData}
           />
 
           {currentReport && (
             <InitialEffortForm
               hourlyRate={70}
               onChange={setCurrentEffort}
-              initialValues={currentEffort}
             />
           )}
 
