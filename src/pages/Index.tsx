@@ -13,6 +13,7 @@ import PerformanceMetrics from "@/components/PerformanceMetrics";
 import InitialEffortForm from "@/components/InitialEffortForm";
 import type { SCCReport, ReportEntry, EffortMetrics } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
+import { processLanguageData } from "@/lib/dataProcessing";
 
 const Index = () => {
   const [currentReport, setCurrentReport] = useState<SCCReport | null>(null);
@@ -94,16 +95,25 @@ const Index = () => {
 
       if (file.name.endsWith(".json")) {
         data = JSON.parse(text);
+        const transformedData = processLanguageData(data);
+        setCurrentReport(transformedData);
       } else {
-        data = parseSCCText(text);
+        const { languages, estimates } = parseSCCText(text);
+        const transformedData = processLanguageData(languages);
+        setCurrentReport(transformedData);
+        
+        if (estimates.estimatedMonths || estimates.estimatedPeople) {
+          setCurrentEffort(prev => ({
+            ...prev,
+            estimatedMonths: estimates.estimatedMonths || prev.estimatedMonths,
+            estimatedPeople: estimates.estimatedPeople || prev.estimatedPeople
+          }));
+        }
       }
-
-      const transformedData = processLanguageData(data);
-      setCurrentReport(transformedData);
       
       toast({
         title: "Report loaded successfully",
-        description: `Analyzed ${transformedData.total.files} files`,
+        description: `Analyzed ${currentReport?.total.files || 0} files`,
       });
     } catch (error) {
       console.error("Error parsing SCC report:", error);
@@ -117,9 +127,17 @@ const Index = () => {
 
   const handlePaste = (text: string) => {
     try {
-      const data = parseSCCText(text);
-      const transformedData = processLanguageData(data);
+      const { languages, estimates } = parseSCCText(text);
+      const transformedData = processLanguageData(languages);
       setCurrentReport(transformedData);
+      
+      if (estimates.estimatedMonths || estimates.estimatedPeople) {
+        setCurrentEffort(prev => ({
+          ...prev,
+          estimatedMonths: estimates.estimatedMonths || prev.estimatedMonths,
+          estimatedPeople: estimates.estimatedPeople || prev.estimatedPeople
+        }));
+      }
       
       toast({
         title: "Report loaded successfully",
