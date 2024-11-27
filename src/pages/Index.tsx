@@ -2,19 +2,47 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import ReportsSection from "@/components/ReportsSection";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Pencil, X } from "lucide-react";
 import Footer from "@/components/Footer";
 
 const Index = () => {
   const [hourlyRate, setHourlyRate] = useState(70);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [title, setTitle] = useState("Project Report Evaluation");
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Project Report Evaluation
-          </h1>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            {isEditingTitle ? (
+              <>
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="max-w-xs text-4xl font-bold text-center"
+                />
+                <button
+                  onClick={() => setIsEditingTitle(false)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <h1 className="text-4xl font-bold text-gray-900">
+                  {title}
+                </h1>
+                <button
+                  onClick={() => setIsEditingTitle(true)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <Pencil className="h-5 w-5" />
+                </button>
+              </>
+            )}
+          </div>
           <p className="text-lg text-gray-600 mb-4">
             Created by{" "}
             <a
@@ -30,7 +58,7 @@ const Index = () => {
           
           <div className="max-w-xs mx-auto mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Consultant Hourly Rate (USD)
+              Standard industry rate per hour ($USD)
             </label>
             <Input
               type="number"
