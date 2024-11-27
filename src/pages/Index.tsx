@@ -4,11 +4,13 @@ import ReportsSection from "@/components/ReportsSection";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExternalLink, Pencil, X } from "lucide-react";
 import Footer from "@/components/Footer";
+import { useCostVisibility } from "@/contexts/CostVisibilityContext";
 
 const Index = () => {
   const [hourlyRate, setHourlyRate] = useState(70);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState("Project Report Evaluation");
+  const { showActualCosts } = useCostVisibility();
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -56,18 +58,20 @@ const Index = () => {
             </a>
           </p>
           
-          <div className="max-w-xs mx-auto mb-8">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Standard industry rate per hour ($USD)
-            </label>
-            <Input
-              type="number"
-              value={hourlyRate}
-              onChange={(e) => setHourlyRate(Number(e.target.value))}
-              min="0"
-              className="text-center"
-            />
-          </div>
+          {showActualCosts && (
+            <div className="max-w-xs mx-auto mb-8">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Standard industry rate per hour ($USD)
+              </label>
+              <Input
+                type="number"
+                value={hourlyRate}
+                onChange={(e) => setHourlyRate(Number(e.target.value))}
+                min="0"
+                className="text-center"
+              />
+            </div>
+          )}
         </div>
 
         <ReportsSection hourlyRate={hourlyRate} />
