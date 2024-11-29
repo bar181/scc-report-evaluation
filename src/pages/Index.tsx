@@ -9,7 +9,7 @@ import { useCostVisibility } from "@/contexts/CostVisibilityContext";
 const Index = () => {
   const [hourlyRate, setHourlyRate] = useState(70);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [title, setTitle] = useState("Consultant Performance Analyzer - by Bradley");
+  const [title, setTitle] = useState("Consultant Performance Analyzer");
   const { showActualCosts } = useCostVisibility();
 
   return (
