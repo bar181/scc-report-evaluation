@@ -4,6 +4,7 @@ import CodeStatisticsCard from "./CodeStatisticsCard";
 import SCCPasteInput from "./SCCPasteInput";
 import EffortFormSection from "./EffortFormSection";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
+import { parseSCCText } from "@/lib/sccParser";
 
 interface ReportFormFieldsProps {
   reportName: string;
@@ -41,6 +42,24 @@ const ReportFormFields = ({
   onEffortChange,
   onClear
 }: ReportFormFieldsProps) => {
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const text = e.clipboardData.getData("text");
+    onPasteContentChange(text);
+    
+    const { estimates, totalFiles } = parseSCCText(text);
+    console.log('Parsed estimates:', estimates);
+    
+    if (estimates.estimatedMonths) {
+      onEffortChange('estimated', 'months', estimates.estimatedMonths.toString());
+    }
+    
+    if (estimates.estimatedPeople) {
+      onEffortChange('estimated', 'people', estimates.estimatedPeople.toString());
+    }
+    
+    onPasteData(text);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -52,11 +71,16 @@ const ReportFormFields = ({
         />
       </div>
 
-      <SCCPasteInput
-        value={pasteContent}
-        onChange={onPasteContentChange}
-        onPaste={onPasteData}
-      />
+      <div>
+        <label className="block text-sm font-medium mb-1">SCC Report Data</label>
+        <textarea
+          className="w-full h-32 p-2 border rounded-md font-mono text-sm"
+          placeholder="Paste your SCC report text here..."
+          value={pasteContent}
+          onChange={(e) => onPasteContentChange(e.target.value)}
+          onPaste={handlePaste}
+        />
+      </div>
 
       <CodeStatisticsCard 
         stats={currentReport.total}
