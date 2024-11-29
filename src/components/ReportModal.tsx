@@ -39,18 +39,31 @@ const ReportModal = ({
     }
   });
   
-  const [effort, setEffort] = useState({
+  const defaultEffort = {
     estimated: {
-      months: initialEffort?.estimatedMonths || 0,
-      people: initialEffort?.estimatedPeople || 0,
-      cost: initialEffort?.estimatedCost || 0
+      months: 0,
+      people: 0,
+      cost: 0
     },
     actual: {
-      months: initialEffort?.actualMonths || 0,
-      people: initialEffort?.actualPeople || 0,
-      cost: initialEffort?.actualCost || 0
+      months: 1,
+      people: 1,
+      cost: 12000
     }
-  });
+  };
+
+  const [effort, setEffort] = useState(initialEffort ? {
+    estimated: {
+      months: initialEffort.estimatedMonths,
+      people: initialEffort.estimatedPeople,
+      cost: initialEffort.estimatedCost || 0
+    },
+    actual: {
+      months: initialEffort.actualMonths,
+      people: initialEffort.actualPeople,
+      cost: initialEffort.actualCost || 0
+    }
+  } : defaultEffort);
 
   useEffect(() => {
     console.log('Initial report received:', initialReport);
@@ -97,6 +110,7 @@ const ReportModal = ({
         rawText: data 
       });
 
+      // Update estimated cost while keeping other values
       if (estimates.estimatedCost) {
         setEffort(prev => ({
           ...prev,
