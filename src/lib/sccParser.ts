@@ -18,7 +18,13 @@ export const parseEffortEstimates = (text: string): Partial<EffortMetrics> => {
   return estimates;
 };
 
-export const parseSCCText = (text: string): { languages: SCCLanguage[], estimates: Partial<EffortMetrics> } => {
+interface ParseSCCTextResult {
+  languages: SCCLanguage[];
+  estimates: Partial<EffortMetrics>;
+  totalFiles: number;
+}
+
+export const parseSCCText = (text: string): ParseSCCTextResult => {
   const lines = text.split("\n");
   const languages: SCCLanguage[] = [];
   let isParsingLanguages = false;
@@ -73,6 +79,6 @@ export const parseSCCText = (text: string): { languages: SCCLanguage[], estimate
   return { 
     languages, 
     estimates,
-    totalFiles // Add totalFiles to the return object
+    totalFiles
   };
 };

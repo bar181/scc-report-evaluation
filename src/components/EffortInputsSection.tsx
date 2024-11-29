@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import type { EffortMetrics } from "@/types/scc";
+import EffortInputSection from "./EffortInputSection";
 
 interface EffortInputsSectionProps {
   effort: EffortMetrics;
