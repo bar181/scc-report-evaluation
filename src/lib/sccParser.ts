@@ -3,15 +3,17 @@ import type { SCCLanguage, EffortMetrics } from "@/types/scc";
 export const parseEffortEstimates = (text: string): Partial<EffortMetrics> => {
   const estimates: Partial<EffortMetrics> = {};
   
-  // Parse months
-  const monthsMatch = text.match(/(\d+\.?\d*)\s*months/);
+  // Parse months - look for the specific format in the SCC report
+  const monthsMatch = text.match(/Estimated Schedule Effort \(organic\)\s*([\d.]+)\s*months/);
   if (monthsMatch) {
+    console.log('Found months:', monthsMatch[1]);
     estimates.estimatedMonths = parseFloat(monthsMatch[1]);
   }
 
-  // Parse people
-  const peopleMatch = text.match(/Required.*?(\d+\.?\d*)/);
+  // Parse people - look for the specific format in the SCC report
+  const peopleMatch = text.match(/Estimated People Required \(organic\)\s*([\d.]+)/);
   if (peopleMatch) {
+    console.log('Found people:', peopleMatch[1]);
     estimates.estimatedPeople = parseFloat(peopleMatch[1]);
   }
 
@@ -20,8 +22,10 @@ export const parseEffortEstimates = (text: string): Partial<EffortMetrics> => {
   if (costMatch) {
     const costString = costMatch[1].replace(/,/g, '');
     estimates.estimatedCost = parseFloat(costString);
+    console.log('Found cost:', estimates.estimatedCost);
   }
 
+  console.log('Parsed estimates:', estimates);
   return estimates;
 };
 
