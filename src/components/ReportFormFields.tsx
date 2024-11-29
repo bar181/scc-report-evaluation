@@ -24,7 +24,7 @@ interface ReportFormFieldsProps {
   onReportNameChange: (name: string) => void;
   onPasteContentChange: (content: string) => void;
   onPasteData: (data: string) => void;
-  onCurrentReportChange: (total: typeof currentReport.total) => void;
+  onCurrentReportChange: (total: SCCReport['total']) => void;
   onEffortChange: (type: 'estimated' | 'actual', field: 'months' | 'people' | 'cost', value: string) => void;
   onClear: () => void;
 }
