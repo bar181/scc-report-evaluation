@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import CodeStatisticsCard from "./CodeStatisticsCard";
 import SCCPasteInput from "./SCCPasteInput";
-import EffortInputSection from "./EffortInputSection";
+import EffortInputsSection from "./EffortInputsSection";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
@@ -29,8 +29,8 @@ const DEFAULT_STATS = {
 const DEFAULT_EFFORT: EffortMetrics = {
   estimatedMonths: 3,
   estimatedPeople: 2,
-  actualMonths: 4,
-  actualPeople: 1.5
+  actualMonths: 1,
+  actualPeople: 1
 };
 
 const ReportModal = ({ 
@@ -65,7 +65,7 @@ const ReportModal = ({
 
   useEffect(() => {
     const calculateDefaultCost = (months: number, people: number) => {
-      const hourlyRate = 100;
+      const hourlyRate = 75;
       return Math.round(months * people * hourlyRate * 160);
     };
 
@@ -120,13 +120,6 @@ const ReportModal = ({
     }
   };
 
-  const handleStatsChange = (total: SCCReport['total']) => {
-    setCurrentReport(prev => ({
-      ...prev,
-      total
-    }));
-  };
-
   const handleEffortChange = (type: 'estimated' | 'actual', field: 'months' | 'people' | 'cost', value: string) => {
     if (field === 'cost') {
       if (type === 'estimated') {
@@ -166,26 +159,15 @@ const ReportModal = ({
 
           <CodeStatisticsCard 
             stats={currentReport.total}
-            onChange={handleStatsChange}
+            onChange={(total) => setCurrentReport(prev => ({ ...prev, total }))}
           />
           
-          <div className="space-y-4">
-            <EffortInputSection
-              title="Estimated Effort"
-              months={currentEffort.estimatedMonths}
-              people={currentEffort.estimatedPeople}
-              cost={estimatedCost}
-              onChange={(field, value) => handleEffortChange('estimated', field, value)}
-            />
-
-            <EffortInputSection
-              title="Actual Effort"
-              months={currentEffort.actualMonths}
-              people={currentEffort.actualPeople}
-              cost={actualCost}
-              onChange={(field, value) => handleEffortChange('actual', field, value)}
-            />
-          </div>
+          <EffortInputsSection
+            effort={currentEffort}
+            estimatedCost={estimatedCost}
+            actualCost={actualCost}
+            onEffortChange={handleEffortChange}
+          />
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
