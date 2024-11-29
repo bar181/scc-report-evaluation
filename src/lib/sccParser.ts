@@ -46,6 +46,7 @@ export const parseSCCText = (text: string): ParseSCCTextResult => {
       const parts = line.split(/\s+/).filter(Boolean);
       if (parts.length >= 2) {
         totalFiles = parseInt(parts[1], 10);
+        console.log('Found total files in parser:', totalFiles);
       }
       break;
     }
@@ -66,11 +67,6 @@ export const parseSCCText = (text: string): ParseSCCTextResult => {
         });
       }
     }
-  }
-
-  // If we found languages but no total line, sum up the Count values
-  if (totalFiles === 0 && languages.length > 0) {
-    totalFiles = languages.reduce((sum, lang) => sum + lang.Count, 0);
   }
 
   // Parse effort estimates

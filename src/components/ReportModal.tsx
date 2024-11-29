@@ -100,16 +100,20 @@ const ReportModal = ({
 
   const handlePasteData = (data: string) => {
     try {
-      const { languages, estimates } = parseSCCText(data);
+      console.log('Processing pasted data:', data);
+      const { languages, estimates, totalFiles } = parseSCCText(data);
       
       const total = languages.reduce((acc, lang) => ({
-        files: acc.files + lang.Count,
+        files: totalFiles || acc.files, // Use totalFiles from parser if available
         lines: acc.lines + lang.Lines,
         code: acc.code + lang.Code,
         comments: acc.comments + lang.Comments,
         blanks: acc.blanks + lang.Blanks,
         complexity: acc.complexity + lang.Complexity
       }), DEFAULT_STATS);
+
+      console.log('Parsed total files:', totalFiles);
+      console.log('Updated total stats:', total);
 
       setCurrentReport({ languages, total });
 
