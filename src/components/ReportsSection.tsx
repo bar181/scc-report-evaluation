@@ -66,13 +66,16 @@ const ReportsSection = ({ hourlyRate }: ReportsSectionProps) => {
   return (
     <>
       <PerformanceMetricsDisplay reports={reports} hourlyRate={hourlyRate} />
-      <ReportsTable
-        reports={reports}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        hourlyRate={hourlyRate}
-        onAddNew={() => setIsModalOpen(true)}
-      />
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-4 text-gray-700">Upload your SCC report here</h2>
+        <ReportsTable
+          reports={reports}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          hourlyRate={hourlyRate}
+          onAddNew={() => setIsModalOpen(true)}
+        />
+      </div>
       <ReportModal
         open={isModalOpen}
         onOpenChange={handleModalClose}
