@@ -36,9 +36,8 @@ const EffortInputSection = ({ title, months, people, cost, onChange }: EffortInp
           <label className="block text-xs text-muted-foreground mb-1">Cost (USD)</label>
           <Input
             type="number"
-            value={Math.round(cost)}
+            value={cost}
             onChange={(e) => onChange('cost', e.target.value)}
-            className="bg-white"
           />
         </div>
       </div>

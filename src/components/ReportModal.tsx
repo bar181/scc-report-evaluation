@@ -69,9 +69,14 @@ const ReportModal = ({
       return Math.round(months * people * hourlyRate * 160);
     };
 
-    setEstimatedCost(calculateDefaultCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople));
-    setActualCost(calculateDefaultCost(currentEffort.actualMonths, currentEffort.actualPeople));
-  }, [currentEffort]);
+    // Only set default costs if they haven't been manually edited
+    if (estimatedCost === 0) {
+      setEstimatedCost(calculateDefaultCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople));
+    }
+    if (actualCost === 0) {
+      setActualCost(calculateDefaultCost(currentEffort.actualMonths, currentEffort.actualPeople));
+    }
+  }, [currentEffort, estimatedCost, actualCost]);
 
   const handleSave = () => {
     const updatedEffort = {
@@ -122,10 +127,11 @@ const ReportModal = ({
 
   const handleEffortChange = (type: 'estimated' | 'actual', field: 'months' | 'people' | 'cost', value: string) => {
     if (field === 'cost') {
+      const numValue = Number(value) || 0;
       if (type === 'estimated') {
-        setEstimatedCost(Number(value) || 0);
+        setEstimatedCost(numValue);
       } else {
-        setActualCost(Number(value) || 0);
+        setActualCost(numValue);
       }
     } else {
       setCurrentEffort(prev => ({
