@@ -22,6 +22,7 @@ export const parseSCCText = (text: string): { languages: SCCLanguage[], estimate
   const lines = text.split("\n");
   const languages: SCCLanguage[] = [];
   let isParsingLanguages = false;
+  let totalFiles = 0;
 
   // Parse SCC data
   for (const line of lines) {
@@ -34,8 +35,14 @@ export const parseSCCText = (text: string): { languages: SCCLanguage[], estimate
       continue;
     }
 
-    // Stop parsing when we hit the Total line
-    if (line.startsWith("Total")) break;
+    // Parse the Total line
+    if (line.startsWith("Total")) {
+      const parts = line.split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        totalFiles = parseInt(parts[1], 10);
+      }
+      break;
+    }
 
     if (isParsingLanguages) {
       const parts = line.split(/\s+/).filter(Boolean);
@@ -55,8 +62,17 @@ export const parseSCCText = (text: string): { languages: SCCLanguage[], estimate
     }
   }
 
+  // If we found languages but no total line, sum up the Count values
+  if (totalFiles === 0 && languages.length > 0) {
+    totalFiles = languages.reduce((sum, lang) => sum + lang.Count, 0);
+  }
+
   // Parse effort estimates
   const estimates = parseEffortEstimates(text);
 
-  return { languages, estimates };
+  return { 
+    languages, 
+    estimates,
+    totalFiles // Add totalFiles to the return object
+  };
 };

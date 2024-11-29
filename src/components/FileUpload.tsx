@@ -57,14 +57,16 @@ const FileUpload = ({ onUpload, onPaste, onManualEntry }: FileUploadProps) => {
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const text = e.clipboardData.getData("text");
     setPasteContent(text);
-    const { estimates } = parseSCCText(text);
-    if (estimates.estimatedMonths && estimates.estimatedPeople) {
-      setManualEntry(prev => ({
-        ...prev,
-        estimatedMonths: estimates.estimatedMonths || 0,
-        estimatedPeople: estimates.estimatedPeople || 0
-      }));
-    }
+    const { estimates, totalFiles } = parseSCCText(text);
+    
+    // Update manual entry with the total files count
+    setManualEntry(prev => ({
+      ...prev,
+      files: totalFiles || 0,
+      estimatedMonths: estimates.estimatedMonths || 0,
+      estimatedPeople: estimates.estimatedPeople || 0
+    }));
+    
     onPaste(text);
   };
 
