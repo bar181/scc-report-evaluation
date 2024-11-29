@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import CodeStatisticsCard from "./CodeStatisticsCard";
-import SCCPasteInput from "./SCCPasteInput";
-import EffortFormSection from "./EffortFormSection";
+import ReportFormFields from "./ReportFormFields";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
@@ -25,9 +22,7 @@ const ReportModal = ({
   initialName,
   initialEffort
 }: ReportModalProps) => {
-  const [reportName, setReportName] = useState(initialName || "");
-  const [pasteContent, setPasteContent] = useState("");
-  const [currentReport, setCurrentReport] = useState<SCCReport>({ 
+  const defaultReport: SCCReport = { 
     languages: [], 
     total: {
       files: 0,
@@ -37,8 +32,8 @@ const ReportModal = ({
       blanks: 0,
       complexity: 0
     }
-  });
-  
+  };
+
   const defaultEffort = {
     estimated: {
       months: 0,
@@ -52,6 +47,9 @@ const ReportModal = ({
     }
   };
 
+  const [reportName, setReportName] = useState(initialName || "");
+  const [pasteContent, setPasteContent] = useState("");
+  const [currentReport, setCurrentReport] = useState<SCCReport>(initialReport || defaultReport);
   const [effort, setEffort] = useState(initialEffort ? {
     estimated: {
       months: initialEffort.estimatedMonths,
@@ -66,29 +64,11 @@ const ReportModal = ({
   } : defaultEffort);
 
   useEffect(() => {
-    console.log('Initial report received:', initialReport);
-    console.log('Initial effort received:', initialEffort);
-    
     if (initialReport) {
       setCurrentReport(initialReport);
       setPasteContent(initialReport.rawText || "");
     }
-    
-    if (initialEffort) {
-      setEffort({
-        estimated: {
-          months: initialEffort.estimatedMonths,
-          people: initialEffort.estimatedPeople,
-          cost: initialEffort.estimatedCost || 0
-        },
-        actual: {
-          months: initialEffort.actualMonths,
-          people: initialEffort.actualPeople,
-          cost: initialEffort.actualCost || 0
-        }
-      });
-    }
-  }, [initialReport, initialEffort]);
+  }, [initialReport]);
 
   const handlePasteData = (data: string) => {
     try {
@@ -110,7 +90,6 @@ const ReportModal = ({
         rawText: data 
       });
 
-      // Update estimated cost while keeping other values
       if (estimates.estimatedCost) {
         setEffort(prev => ({
           ...prev,
@@ -133,6 +112,13 @@ const ReportModal = ({
         [field]: parseFloat(value) || 0
       }
     }));
+  };
+
+  const handleClear = () => {
+    setReportName("");
+    setPasteContent("");
+    setCurrentReport(defaultReport);
+    setEffort(defaultEffort);
   };
 
   const handleSave = () => {
@@ -160,47 +146,26 @@ const ReportModal = ({
           <DialogTitle>{initialReport ? 'Edit Report' : 'Add New Report'}</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium mb-1">Repository Name</label>
-            <Input
-              value={reportName}
-              onChange={(e) => setReportName(e.target.value)}
-              placeholder="Enter repository name"
-            />
-          </div>
+        <ReportFormFields
+          reportName={reportName}
+          pasteContent={pasteContent}
+          currentReport={currentReport}
+          effort={effort}
+          onReportNameChange={setReportName}
+          onPasteContentChange={setPasteContent}
+          onPasteData={handlePasteData}
+          onCurrentReportChange={(total) => setCurrentReport(prev => ({ ...prev, total }))}
+          onEffortChange={handleEffortChange}
+          onClear={handleClear}
+        />
 
-          <SCCPasteInput
-            value={pasteContent}
-            onChange={setPasteContent}
-            onPaste={handlePasteData}
-          />
-
-          <CodeStatisticsCard 
-            stats={currentReport.total}
-            onChange={(total) => setCurrentReport(prev => ({ ...prev, total }))}
-          />
-          
-          <EffortFormSection
-            title="Estimated Effort"
-            effort={effort.estimated}
-            onChange={(field, value) => handleEffortChange('estimated', field, value)}
-          />
-          
-          <EffortFormSection
-            title="Actual Effort"
-            effort={effort.actual}
-            onChange={(field, value) => handleEffortChange('actual', field, value)}
-          />
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>
-              Save Report
-            </Button>
-          </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave}>
+            Save Report
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
