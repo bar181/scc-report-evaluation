@@ -15,6 +15,7 @@ export interface EffortMetrics {
   estimatedPeople: number;
   actualMonths: number;
   actualPeople: number;
+  estimatedCost?: number;
 }
 
 export interface SCCReport {

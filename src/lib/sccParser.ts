@@ -15,6 +15,13 @@ export const parseEffortEstimates = (text: string): Partial<EffortMetrics> => {
     estimates.estimatedPeople = parseFloat(peopleMatch[1]);
   }
 
+  // Parse estimated cost
+  const costMatch = text.match(/Estimated Cost to Develop.*?\$([0-9,]+)/);
+  if (costMatch) {
+    const costString = costMatch[1].replace(/,/g, '');
+    estimates.estimatedCost = parseFloat(costString);
+  }
+
   return estimates;
 };
 

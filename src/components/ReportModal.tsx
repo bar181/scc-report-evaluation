@@ -78,6 +78,43 @@ const ReportModal = ({
     }
   }, [currentEffort, estimatedCost, actualCost]);
 
+  const handlePasteData = (data: string) => {
+    try {
+      console.log('Processing pasted data:', data);
+      const { languages, estimates, totalFiles } = parseSCCText(data);
+      
+      const total = languages.reduce((acc, lang) => ({
+        files: totalFiles || acc.files,
+        lines: acc.lines + lang.Lines,
+        code: acc.code + lang.Code,
+        comments: acc.comments + lang.Comments,
+        blanks: acc.blanks + lang.Blanks,
+        complexity: acc.complexity + lang.Complexity
+      }), DEFAULT_STATS);
+
+      console.log('Parsed total files:', totalFiles);
+      console.log('Updated total stats:', total);
+
+      setCurrentReport({ languages, total });
+
+      if (estimates.estimatedMonths || estimates.estimatedPeople || estimates.estimatedCost) {
+        setCurrentEffort(prev => ({
+          ...prev,
+          ...(estimates.estimatedMonths && { estimatedMonths: estimates.estimatedMonths }),
+          ...(estimates.estimatedPeople && { estimatedPeople: estimates.estimatedPeople })
+        }));
+        
+        // Set the estimated cost if it was found in the SCC report
+        if (estimates.estimatedCost) {
+          console.log('Setting estimated cost from SCC report:', estimates.estimatedCost);
+          setEstimatedCost(estimates.estimatedCost);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing pasted data:', error);
+    }
+  };
+
   const handleSave = () => {
     const updatedEffort = {
       ...currentEffort,
@@ -96,53 +133,6 @@ const ReportModal = ({
     setCurrentEffort(DEFAULT_EFFORT);
     setEstimatedCost(0);
     setActualCost(0);
-  };
-
-  const handlePasteData = (data: string) => {
-    try {
-      console.log('Processing pasted data:', data);
-      const { languages, estimates, totalFiles } = parseSCCText(data);
-      
-      const total = languages.reduce((acc, lang) => ({
-        files: totalFiles || acc.files, // Use totalFiles from parser if available
-        lines: acc.lines + lang.Lines,
-        code: acc.code + lang.Code,
-        comments: acc.comments + lang.Comments,
-        blanks: acc.blanks + lang.Blanks,
-        complexity: acc.complexity + lang.Complexity
-      }), DEFAULT_STATS);
-
-      console.log('Parsed total files:', totalFiles);
-      console.log('Updated total stats:', total);
-
-      setCurrentReport({ languages, total });
-
-      if (estimates.estimatedMonths || estimates.estimatedPeople) {
-        setCurrentEffort(prev => ({
-          ...prev,
-          ...(estimates.estimatedMonths && { estimatedMonths: estimates.estimatedMonths }),
-          ...(estimates.estimatedPeople && { estimatedPeople: estimates.estimatedPeople })
-        }));
-      }
-    } catch (error) {
-      console.error('Error processing pasted data:', error);
-    }
-  };
-
-  const handleEffortChange = (type: 'estimated' | 'actual', field: 'months' | 'people' | 'cost', value: string) => {
-    if (field === 'cost') {
-      const numValue = Number(value) || 0;
-      if (type === 'estimated') {
-        setEstimatedCost(numValue);
-      } else {
-        setActualCost(numValue);
-      }
-    } else {
-      setCurrentEffort(prev => ({
-        ...prev,
-        [`${type}${field.charAt(0).toUpperCase() + field.slice(1)}`]: parseFloat(value) || 0
-      }));
-    }
   };
 
   return (
@@ -176,7 +166,21 @@ const ReportModal = ({
             effort={currentEffort}
             estimatedCost={estimatedCost}
             actualCost={actualCost}
-            onEffortChange={handleEffortChange}
+            onEffortChange={(type, field, value) => {
+              if (field === 'cost') {
+                const numValue = Number(value) || 0;
+                if (type === 'estimated') {
+                  setEstimatedCost(numValue);
+                } else {
+                  setActualCost(numValue);
+                }
+              } else {
+                setCurrentEffort(prev => ({
+                  ...prev,
+                  [`${type}${field.charAt(0).toUpperCase() + field.slice(1)}`]: parseFloat(value) || 0
+                }));
+              }
+            }}
           />
 
           <div className="flex justify-end gap-2">
