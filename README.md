@@ -2,6 +2,10 @@
 
 A powerful web application for analyzing and visualizing software project metrics, providing insights into project performance, cost estimation, and resource allocation.
 
+## Live Demo & Repository
+- 🌐 [Live Demo](https://scc-report-evaluation.vercel.app/)
+- 💻 [GitHub Repository](https://github.com/bar181/scc-report-evaluation)
+
 ## Overview
 
 This tool helps development teams and project managers evaluate software projects by analyzing code statistics and generating comprehensive reports. It provides valuable insights into project metrics such as:
