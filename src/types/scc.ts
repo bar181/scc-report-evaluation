@@ -16,6 +16,7 @@ export interface EffortMetrics {
   actualMonths: number;
   actualPeople: number;
   estimatedCost?: number;
+  actualCost?: number;
 }
 
 export interface SCCReport {
@@ -29,6 +30,7 @@ export interface SCCReport {
     files: number;
   };
   effort?: EffortMetrics;
+  rawText?: string;
 }
 
 export interface ReportEntry extends SCCReport {

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import CodeStatisticsCard from "./CodeStatisticsCard";
 import SCCPasteInput from "./SCCPasteInput";
-import EffortInputsSection from "./EffortInputsSection";
+import EffortFormSection from "./EffortFormSection";
 import type { SCCReport, EffortMetrics } from "@/types/scc";
 import { parseSCCText } from "@/lib/sccParser";
 
@@ -17,22 +17,6 @@ interface ReportModalProps {
   initialEffort?: EffortMetrics;
 }
 
-const DEFAULT_STATS = {
-  files: 0,
-  lines: 0,
-  code: 0,
-  comments: 0,
-  blanks: 0,
-  complexity: 0
-};
-
-const DEFAULT_EFFORT: EffortMetrics = {
-  estimatedMonths: 3,
-  estimatedPeople: 2,
-  actualMonths: 1,
-  actualPeople: 1
-};
-
 const ReportModal = ({ 
   open, 
   onOpenChange, 
@@ -41,42 +25,57 @@ const ReportModal = ({
   initialName,
   initialEffort
 }: ReportModalProps) => {
+  const [reportName, setReportName] = useState(initialName || "");
+  const [pasteContent, setPasteContent] = useState("");
   const [currentReport, setCurrentReport] = useState<SCCReport>({ 
     languages: [], 
-    total: DEFAULT_STATS 
+    total: {
+      files: 0,
+      lines: 0,
+      code: 0,
+      comments: 0,
+      blanks: 0,
+      complexity: 0
+    }
   });
-  const [reportName, setReportName] = useState(initialName || "Repo 1");
-  const [currentEffort, setCurrentEffort] = useState<EffortMetrics>(initialEffort || DEFAULT_EFFORT);
-  const [pasteContent, setPasteContent] = useState("");
-  const [estimatedCost, setEstimatedCost] = useState(0);
-  const [actualCost, setActualCost] = useState(0);
+  
+  const [effort, setEffort] = useState({
+    estimated: {
+      months: initialEffort?.estimatedMonths || 0,
+      people: initialEffort?.estimatedPeople || 0,
+      cost: initialEffort?.estimatedCost || 0
+    },
+    actual: {
+      months: initialEffort?.actualMonths || 0,
+      people: initialEffort?.actualPeople || 0,
+      cost: initialEffort?.actualCost || 0
+    }
+  });
 
   useEffect(() => {
+    console.log('Initial report received:', initialReport);
+    console.log('Initial effort received:', initialEffort);
+    
     if (initialReport) {
       setCurrentReport(initialReport);
+      setPasteContent(initialReport.rawText || "");
     }
+    
     if (initialEffort) {
-      setCurrentEffort(initialEffort);
+      setEffort({
+        estimated: {
+          months: initialEffort.estimatedMonths,
+          people: initialEffort.estimatedPeople,
+          cost: initialEffort.estimatedCost || 0
+        },
+        actual: {
+          months: initialEffort.actualMonths,
+          people: initialEffort.actualPeople,
+          cost: initialEffort.actualCost || 0
+        }
+      });
     }
-    if (initialName) {
-      setReportName(initialName);
-    }
-  }, [initialReport, initialEffort, initialName]);
-
-  useEffect(() => {
-    const calculateDefaultCost = (months: number, people: number) => {
-      const hourlyRate = 75;
-      return Math.round(months * people * hourlyRate * 160);
-    };
-
-    // Only set default costs if they haven't been manually edited
-    if (estimatedCost === 0) {
-      setEstimatedCost(calculateDefaultCost(currentEffort.estimatedMonths, currentEffort.estimatedPeople));
-    }
-    if (actualCost === 0) {
-      setActualCost(calculateDefaultCost(currentEffort.actualMonths, currentEffort.actualPeople));
-    }
-  }, [currentEffort, estimatedCost, actualCost]);
+  }, [initialReport, initialEffort]);
 
   const handlePasteData = (data: string) => {
     try {
@@ -90,49 +89,54 @@ const ReportModal = ({
         comments: acc.comments + lang.Comments,
         blanks: acc.blanks + lang.Blanks,
         complexity: acc.complexity + lang.Complexity
-      }), DEFAULT_STATS);
+      }), currentReport.total);
 
-      console.log('Parsed total files:', totalFiles);
-      console.log('Updated total stats:', total);
+      setCurrentReport({ 
+        languages, 
+        total,
+        rawText: data 
+      });
 
-      setCurrentReport({ languages, total });
-
-      if (estimates.estimatedMonths || estimates.estimatedPeople || estimates.estimatedCost) {
-        setCurrentEffort(prev => ({
+      if (estimates.estimatedCost) {
+        setEffort(prev => ({
           ...prev,
-          ...(estimates.estimatedMonths && { estimatedMonths: estimates.estimatedMonths }),
-          ...(estimates.estimatedPeople && { estimatedPeople: estimates.estimatedPeople })
+          estimated: {
+            ...prev.estimated,
+            cost: estimates.estimatedCost
+          }
         }));
-        
-        // Set the estimated cost if it was found in the SCC report
-        if (estimates.estimatedCost) {
-          console.log('Setting estimated cost from SCC report:', estimates.estimatedCost);
-          setEstimatedCost(estimates.estimatedCost);
-        }
       }
     } catch (error) {
       console.error('Error processing pasted data:', error);
     }
   };
 
-  const handleSave = () => {
-    const updatedEffort = {
-      ...currentEffort,
-      estimatedCost,
-      actualCost
-    };
-    onSave(reportName, currentReport, updatedEffort);
-    onOpenChange(false);
-    resetForm();
+  const handleEffortChange = (type: 'estimated' | 'actual', field: 'months' | 'people' | 'cost', value: string) => {
+    setEffort(prev => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        [field]: parseFloat(value) || 0
+      }
+    }));
   };
 
-  const resetForm = () => {
-    setCurrentReport({ languages: [], total: DEFAULT_STATS });
-    setReportName("Repo 1");
-    setPasteContent("");
-    setCurrentEffort(DEFAULT_EFFORT);
-    setEstimatedCost(0);
-    setActualCost(0);
+  const handleSave = () => {
+    const effortMetrics: EffortMetrics = {
+      estimatedMonths: effort.estimated.months,
+      estimatedPeople: effort.estimated.people,
+      estimatedCost: effort.estimated.cost,
+      actualMonths: effort.actual.months,
+      actualPeople: effort.actual.people,
+      actualCost: effort.actual.cost
+    };
+    
+    onSave(reportName, {
+      ...currentReport,
+      rawText: pasteContent
+    }, effortMetrics);
+    
+    onOpenChange(false);
   };
 
   return (
@@ -141,6 +145,7 @@ const ReportModal = ({
         <DialogHeader>
           <DialogTitle>{initialReport ? 'Edit Report' : 'Add New Report'}</DialogTitle>
         </DialogHeader>
+        
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium mb-1">Repository Name</label>
@@ -162,25 +167,16 @@ const ReportModal = ({
             onChange={(total) => setCurrentReport(prev => ({ ...prev, total }))}
           />
           
-          <EffortInputsSection
-            effort={currentEffort}
-            estimatedCost={estimatedCost}
-            actualCost={actualCost}
-            onEffortChange={(type, field, value) => {
-              if (field === 'cost') {
-                const numValue = Number(value) || 0;
-                if (type === 'estimated') {
-                  setEstimatedCost(numValue);
-                } else {
-                  setActualCost(numValue);
-                }
-              } else {
-                setCurrentEffort(prev => ({
-                  ...prev,
-                  [`${type}${field.charAt(0).toUpperCase() + field.slice(1)}`]: parseFloat(value) || 0
-                }));
-              }
-            }}
+          <EffortFormSection
+            title="Estimated Effort"
+            effort={effort.estimated}
+            onChange={(field, value) => handleEffortChange('estimated', field, value)}
+          />
+          
+          <EffortFormSection
+            title="Actual Effort"
+            effort={effort.actual}
+            onChange={(field, value) => handleEffortChange('actual', field, value)}
           />
 
           <div className="flex justify-end gap-2">
